@@ -1,57 +1,122 @@
 % Define document class
-\documentclass[twocolumn]{aastex631}
+\documentclass[preprint]{aastex631}
 \usepackage{showyourwork}
 
 % Begin!
 \begin{document}
+	
+\newcommand{\ergsec}{erg s$^{-1}$ cm$^{-2}$ $\mu$m$^{-1}$}
 
 % Title
-\title{An open source scientific article}
+\title{Keck Near-Infrared Observations of Mab}
 
 % Author list
 \author{@emolter}
 
+\author{Imke}
+
+\author{Chris}
+
 % Abstract with filler text
 \begin{abstract}
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-    Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-    Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-    Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-    Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-    Phasellus eu tellus sit amet tortor gravida placerat.
-    Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-    Praesent eget sem vel leo ultrices bibendum.
-    Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-    Curabitur auctor semper nulla donec varius orci eget risus.
-    Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-    Duis eget orci sit amet orci dignissim rutrum.
+We report the first near-infrared detection of Uranus's smallest known moon Mab, the presumed source of the blue and diffuse $\mu$ ring, using the NIRC2 instrument at Keck Observatory.
+something about shift-and-stack
+If the moon has an effective radius of 12 km as previously proposed based on HST data, its geometric albedo would be xx at 1.6 $\mu$m and phase angle 0.02$^\circ$, while if it has a radius of 6 km, its geometric albedo would be xx. Taken along with the HST albedo measurements, this implies Mab is (much fainter than / much brighter than / about the same as) expected in the near-infrared. We propose that this is due to ... (remember to talk about low phase angle and opposition surge somewhere). We also report (the first?) infrared photometry of Ophelia, (Cordelia?), and Perdita.
 \end{abstract}
 
 % Main body with filler text
 \section{Introduction}
-\label{sec:intro}
+\label{s:intro}
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-Phasellus eu tellus sit amet tortor gravida placerat.
-Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-Praesent eget sem vel leo ultrices bibendum.
-Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-Curabitur auctor semper nulla donec varius orci eget risus.
-Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-Duis eget orci sit amet orci dignissim rutrum.
+Look in JWST proposal!
 
-Nam dui ligula, fringilla a, euismod sodales, sollici- tudin vel, wisi.
-Morbi auctor lorem non justo, nam lacus libero, pretium at, lobortis vitae.
-Donec aliquet, tortor sed accumsan bibendum, erat ligula aliquet magna.
-Morbi ac orci et nisl hendrerit mollis, suspendisse ut massa, cras nec ante.
-Pellentesque a nulla cum sociis natoque penatibus et magnis dis parturient.
-Aliquam tincidunt urna, nulla ullamcorper vestibulum turpis.
-Pellentesque cursus luctus mauris \citep{Luger2021}.
+\section{Observations and Data Processing}
+\label{s:observations}
 
-\bibliography{bib}
+This paper makes use of H-band data taken on 28 October 2019 by the narrow camera of the NIRC2 instrument coupled to the Adaptive Optics (AO) system at Keck Observatory, using Uranus itself for wavefront sensing \citep{wizinowich00, vandam04}. The same data were analyzed by \citet{paradis23}, so we refer the reader to that paper for a detailed description of the observation and data reduction procedures. The standard star was FS2 from the UKIRT Faint Standard Star list\footnote{\url{https://www2.keck.hawaii.edu/inst/nirc/UKIRTstds.html}}, and standard photometric calibration procedures resulted in calibration constants $C_H = 8.87\times10^{-17}$ and $C_K = 9.11\times10^{-17}$ to convert from 1 count per second to 1 \ergsec. The uncertainty in the photometric calibration was estimated from the spread in measured fluxes from the standard star between frames. The value we find is 20\% in both filters, which is typical for NIRC2 observations \citep{depater14, molter19}.
+
+Our full dataset consisted of 23 exposures of 120 seconds in H-band (1.6 $\mu$m) and 24 exposures of 120 seconds each in K-band (2.2 $\mu$m); these were all the frames taken on 28 October 2019 when Mab's expected position was inside the field of view of the narrow camera; see the left panel of Figure \ref{fig:detection}.
+The proper motion of Mab is roughly 30 mas (3 pixels) per minute, which means that each frame had to be shifted relative to the previous one in accordance with Mab's expected vector of motion to improve the signal-to-noise ratio (SNR). This so-called ``shift-and-stack" technique has been used by other authors to improve the SNR of moving point sources, including to measure photometry of other small moons of Uranus \citep[][]{paradis19, paradis23}. Our shift-and-stack procedure differs in several ways from the one implemented by those authors, and we describe it fully in Appendix \ref{s:shiftandstack}. The application of shift-and-stack resulted in a single summed image representing an effective integration time of 2760 seconds on the expected position of Mab. 
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{figures/motion_on_detector.png}
+\includegraphics[width=0.5\textwidth]{figures/detection_image.png}
+\caption{\textbf{Left:} A single NIRC2 H-band exposure overlaid with the expected position of Mab in each of our 23 H-band exposures. The bright and faint point sources visible in the image are Miranda and Puck, respectively. \textbf{Right:} Detection of Mab using the shift-and-stack technique. The red arrow indicates the average distance and direction of Mab's motion across the detector during a single 2-minute exposure.\label{fig:detection}}
+\end{figure}
+
+\section{Results}
+\label{s:results}
+
+\subsection{Photometry of Mab}
+
+An image of our detection of Mab is shown in the right panel of Figure \ref{fig:detection}. The moon appears slightly vertically extended because its proper motion was roughly 6 pixels per frame, moving approximately toward sky North. The detection is in a low-SNR regime, but we are confident that it is real for three reasons. First, a tentative detection of Mab can be made separately from the first 11 frames and the last 11 frames, meaning that an artefact in a single frame is not producing a false positive. Second, the detection is located in the appropriate position on the sky relative to Miranda and Puck. Third, we performed an experiment to test the false positive rate of our shift-and-stack procedure under the same scattered light and noise conditions as the data. In short, we added random offsets to the expected position of Mab in each frame, then performed the shift-and-stack procedure in the same way as we did for the true expected position. We repeated this procedure with different random offsets 100 times, and found that no noise spikes as bright as our Mab detection appeared in any of these 100 different stacks; see Appendix \ref{s:falsepositives} for more details.
+
+Because Mab was detected at low SNR and within a substantial scattered light background, the flux in the wings of the PSF could not be accurately measured. We therefore determined the flux of Mab using a flux bootstrapping procedure similar to that applied to Keck-observed point sources by many other authors \citep[e.g.,]{gibbard05, molter19, paradis23}, the specifics of which we summarize in Appendix \ref{s:photometry}. We find the total flux of Mab to be $(5.6 \pm 1.2)\times10^{-16}$ \ergsec, where the error bars indicate a 1-$\sigma$ uncertainty, computed by taking the quadrature sum of the flux bootstrapping error (see Appendix \ref{s:photometry}) and the 20\% photometric calibration error. This flux level corresponds to an integrated I/F of XX km$^2$ at 1.6 $\mu$m, where the integrated I/F is defined as the sky-projected area the moon would have if it were a perfect Lambertian reflector \citep[i.e., a geometric albedo of unity][]{karkoschka01}. Note that the Sun-target-observer phase angle of these observations was only 0.02$^\circ$, so the opposition effect was likely substantial, as discussed more in Section \ref{s:discussion}. 
+
+We did not detect Mab in K-band. Nevertheless, we set an upper limit on Mab's K-band brightness of 
+XX \ergsec. One must exercise caution when determining an upper limit for a point source that has moved by a substantial fraction of a resolution element during a single exposure because the target no longer appears to be a point source. HOW TO DO THIS PROPERLY?
+
+\subsection{Photometry of Other Moons}
+
+We report the detection of Ophelia in H- and K-band and Perdita in H-band [CHECK K-BAND AGAIN].
+Something about Cordelia! do we actually see it?
+tie in story about median subtraction of frames
+Try Cupid again?
+
+\section{Discussion}
+\label{s:discussion}
+
+The photometric model of \citet{karkoschka01} defines the I/F of a moon as the product of four normalized functions and a constant:
+\begin{equation}
+	\label{eq:if}
+	I/F(l, \alpha, \lambda) = f_1(l) f_2(\alpha) f_3(\lambda) f_4(\lambda) (I/F)_0
+\end{equation}
+where $f_1(l)$ is the lightcurve as a function of orbital longitude $l$ with an orbital average of unity, $f_2(\alpha)$ is the phase function scaled to unity at phase angle $\alpha = 0$, $f_3(\lambda)$ is the solar spectrum at the observed wavelength $\lambda$ scaled to unity at 550 nm, $f_4(\lambda)$ is the band/continuum ratio, used to account for wavelength-dependent absorption features in the spectrum of the moon, and $(I/F)_0$ is the reflectivity at $\alpha = 0$ and $\lambda = 550$ nm, averaged over orbital longitude.
+
+Use the above to contextualize Showalter observations, Sam's upper limit, and this detection in H-band but not K-band.
+
+Sam's upper limit
+
+What does it say about mu ring?
+
+Something perhaps about orbital stability of Mab (if the offset from its expected position is real)
+
+\acknowledgements
+
+acknowledge Keck - look this up
+
+\appendix
+
+\section{Shift-and-Stack Procedure}
+\label{s:shiftandstack}
+
+To improve the SNR on Mab, individual 120-second frames were shifted according to the expected position of the moon relative to Uranus and then co-added; details of this procedure are presented here. First, we aligned the position of Uranus in all the frames using the \texttt{chi2\_shift} function of the \texttt{Astropy}-affiliated \texttt{image\_registration} Python package\footnote{\url{https://github.com/keflavich/image_registration}}, which implements the single-step discrete Fourier transform (DFT) algorithm for efficient sub-pixel image registration \citep{guizarsicairos08}. In K-band, cloud features and moons are brighter than the planet's disk, so we first applied the Canny edge-detection filter using the \texttt{skimage} Python package \citep{skimage14} to enhance the rings of Uranus, then ran \texttt{chi2\_shift} on those edges. This alignment method was found to produce very sharp stacked images of the rings, so we were confident that it was aligning the frames accurately. The implementation of this alignment step permitted us to co-add all three observing blocks shown in Figure \ref{fig:detection}, between which Uranus was repositioned on the detector by tens of pixels, and is the most important difference between our procedure and that of \citet{paradis19, paradis23}.  Second, we found the median of these planet-aligned frames and subtracted it from each frame; this removes the signal of non-moving sources (in this case, the planet and rings), decreasing the effects of scattered light. Third, the expected offset between Mab and Uranus at the time of each exposure (start time plus half the integration time) was taken from JPL Horizons\footnote{\url{https://ssd.jpl.nasa.gov/horizons/app.html\#/}}, accessed using the \texttt{Astroquery} Python package \citep{ginsburg19}. We converted the expected x,y offset from units of arcseconds to pixels assuming the pixel scale of the NIRC2 narrow camera to be 0.009971\arcsec \citep{service16} and taking the distance to Uranus from the Horizons ephemeris. Finally, we applied the shifts using a 2-D fast Fourier transform (FFT) sub-pixel image shift, again implemented with \texttt{image\_registration}, and summed all the frames.
+
+
+\section{Flux Bootstrapping Technique}
+\label{s:bootstrapping}
+
+Using the \texttt{astropy}-affiliated \texttt{photutils} package \cite{}, we measured the total flux inside many circular apertures of different radii $r_i$ centered on Mab; let us call Mab's flux for the $i$th radius $F_{M i}$. We then measured the flux inside apertures of the same size but centered on the standard star; call these $F_{\star i}$. Comparing $F_{\star i}$ with the true flux of the standard star $F_\star$ (as measured in a very large aperture of radius $\gtrsim$100 pixels) yielded a correction for the wings of the PSF for a given value of $r_{i}$, given by simply $C_{psf} = F_{\star i}/F_\star$. The flux of the background must also be subtracted in order to accurately determine $F_{M i}$; we defined the background region using a circular annulus centered on Mab with inner radius $r_i + 5$ pixels and outer radius $r_o$. The background flux level $F_{B o}$ was taken to be the median of pixels within the background annulus multiplied by the area of the Mab aperture $\pi r_i^2$. We also varied $r_o$ over a range of values to test the sensitivity of our flux estimate to the choice of background region. The flux of Mab $F_{i,o}$ for a given $r_i, r_o$ pair is given by $F_M = (F_{M i} - F_{B o}) / C_{psf}$, and the value of $F_{i,o}$ is displayed as a function of $r_i$ and $r_o$ in Figure \ref{fig:wing}. The final flux estimate of Mab is given by the mean of $F_{i,o}$ over a reasonable range of $r_i$ and $r_o$ values, and the uncertainty is given by the standard deviation of $F_{i,o}$, which is $\approx$9\%. (This 9\% error is multiplied in quadrature with the typical 20\% flux calibration error from standard star observations with Keck). We chose smaller values of $r_i$ than \citet{paradis23} because the SNR of our Mab detection is much lower than the SNR of the moon detections shown in that paper.
+
+\begin{figure}
+\includegraphics[width=0.3\textwidth]{figures/example_aperture.png}
+\includegraphics[width=0.7\textwidth]{figures/photometry_vs_region.png}
+\caption{\textbf{Left:} Example aperture (solid blue line) and background annulus (dot-dashed red line) centered on Mab. The values of $r_i$ and $r_o$ in this example are 7 and 45 pixels, respectively. \textbf{Right:} Derived flux of Mab as a function of $r_i$ and $r_o$.\label{fig:wing}}
+\end{figure}
+
+
+\section{False Positive Rate Experiment}
+\label{s:falsepositives}
+
+Our detection of Mab has a low SNR, and the moon was located in the lower-left quadrant of the NIRC2 NARROW camera, which is known to have non-Gaussianity in its noise statistics [CITE]. It is therefore natural to wonder whether the shift-and-stack technique is somehow injecting false positives by stacking noise spikes atop one another. To test whether this is the case, we performed an experiment to test the false positive rate within the true detector noise and scattered light environment of the data, as follows. The expected position of Mab was shifted by a random x,y offset of mean amplitude 20 pixels in each frame, then the shift-and-stack algorithm was re-run assuming these new randomly-selected shifts and the output frame was saved. This experiment was repeated 100 times with different random offsets applied. We then searched for point sources in these 100 test frames by applying a center-surround filter with an FWHM of 2 pixels\footnote{this corresponds roughly to the diffraction-limited beam size of Keck in H-band}, then binned the filtered images by a factor of 2 in each direction. Finally, we computed the amplitude of the brightest pixel in each binned frame in units of the RMS noise of the input image. This yielded a rough estimate of the signal-to-noise ratio of that peak. Identical filtering, binning, and SNR calculations were run on the real data. The detection of Mab in the real data was found to have a higher SNR than any peak in any of the 100 test frames (see Figure \ref{fig:randomstack}). Based on this experiment, Mab was detected at the 7$\sigma$ level; however, it can be seen in panel (b) of Figure \ref{fig:randomstack}
+
+\begin{figure}
+\includegraphics[width=1.0\textwidth]{figures/random_stack_experiment.png}
+\caption{Results of the false positives experiment. \textbf{(a)} Detection of Mab shown in Figure \ref{fig:detection}. \textbf{(b)} Panel (a) after filtering and binning were applied. \textbf{(c)} \label{fig:randomstack}}
+\end{figure}
+
+
+
+\bibliography{references}
 
 \end{document}
