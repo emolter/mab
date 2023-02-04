@@ -23,50 +23,97 @@ is $\approx$6.2 pixels in the sky-North-Northeast direction.
 This is larger than Keck's diffraction-limited resolution of 40 mas (4 pixels) at 1.6 $\mu$m,
 so smearing is substantial in the N-S direction, as seen in Figure \ref{fig:detection}.
 "
+
+ready to ship!
 '''
 
-mab_loc = (683, 503)
-mab_loc_firsthalf = mab_loc
-#mab_loc_secondhalf = (767, 656) #these are not the correct numbers
+code = 'Mab'
+
+constants_dict = {
+    'Mab':{
+        'H':{'stem':'urh', 'coadds':6, 'xpos':187, 'ypos':395}, #urh156
+        'K':{'stem':'urk', 'coadds':4, 'xpos':188, 'ypos':307}, #urk146
+        },
+    'Ophelia':{
+        'H':{},
+        'K':{},
+        },
+    'Cordelia':{
+        'H':{},
+        'K':{},
+        },
+    'Perdita':{
+        'H':{},
+        'K':{},
+        },
+}
+
 pad_x = 50
 pad_y = pad_x
-average_motion = (-1.5348859518691143, 6.0000087209428985) #per exposure, from mab_path_on_detector.py
-
-hdul_full = fits.open(paths.data / 'results/urh_Mab_2019-10-28.fits')
-mab_loc_firsthalf = mab_loc
-hdul_firsthalf = fits.open(paths.data / 'results/urh_Mab_2019-10-28_firsthalf.fits')
-hdul_secondhalf = fits.open(paths.data / 'results/urh_Mab_2019-10-28_secondhalf.fits')
-#print(hdul_secondhalf[0].header['EXPSTART'])
-
-itime = hdul_full[0].header['ITIME'] / 6 # the 6 coadds per frame have already been accounted for, according to Imke
-data_full = hdul_full[0].data / itime 
-data_firsthalf = hdul_firsthalf[0].data
-data_secondhalf = hdul_secondhalf[0].data
 
 
-fig, ax0 = plt.subplots(1,1, figsize = (8, 8))
+fs = 14
+fig, axes = plt.subplots(2,1, figsize = (5.5, 8))
 
-cim0 = ax0.imshow(data_full, vmin = -5e-2, vmax = 10e-2, cmap='Greys_r')
-#ax1.imshow(data_firsthalf, vmin = -30, vmax = 50, cmap='Greys_r')
-#ax2.imshow(data_secondhalf, vmin = -30, vmax = 50, cmap='Greys_r')
-ax0_divider = make_axes_locatable(ax0)
-cax0 = ax0_divider.append_axes("right", size="7%", pad="2%")
-cbar0 = fig.colorbar(cim0, cax=cax0, label=r'Flux Density (cts s$^{-1}$)')
-
-ax0.quiver(10 + mab_loc[0], mab_loc[1], average_motion[0], average_motion[1],
-                    angles='xy', scale_units='xy', scale=1,
-                    color = 'red', headlength=3, headwidth=3, headaxislength=3,
-                    label='Motion of Mab during exposure')
-
-for ax in [ax0]:
+for i, band in enumerate(['H', 'K']):
     
-    ax.set_xlim([mab_loc[0] - pad_x, mab_loc[0] + pad_x])
-    ax.set_ylim([mab_loc[1] - pad_y + 2, mab_loc[1] + pad_y + 2])
-    #ax.set_xticks([])
-    #ax.set_yticks([])
-    ax.set_xlabel('Pixels')
-    ax.set_ylabel('Pixels')
+    stem = constants_dict[code][band]['stem']
+    coadds = constants_dict[code][band]['coadds']
+    mab_loc = (constants_dict[code][band]['xpos'], constants_dict[code][band]['ypos'])
+
+    hdul_full = fits.open(paths.data / f'results/{stem}_{code}_2019-10-28.fits')
+    itime = hdul_full[0].header['ITIME'] / coadds # the 6 coadds per frame have already been accounted for, according to Imke
+    data_full = hdul_full[0].data / itime
     
-ax0.legend()
-fig.savefig(paths.figures / 'detection_image.png')
+    ax0 = axes[i]
+    cim0 = ax0.imshow(data_full, vmin = -5e-2, vmax = 15e-2, cmap='Greys_r')
+    ax0_divider = make_axes_locatable(ax0)
+    cax0 = ax0_divider.append_axes("right", size="7%", pad="2%")
+    cbar0 = fig.colorbar(cim0, cax=cax0)
+    cbar0.set_label(r'Flux Density (cts s$^{-1}$)', fontsize = fs)
+
+    #ax0.quiver(10 + mab_loc[0], mab_loc[1], average_motion[0], average_motion[1],
+    #                    angles='xy', scale_units='xy', scale=1,
+    #                    color = 'red', headlength=3, headwidth=3, headaxislength=3,
+    #                    label=f'Motion of {code} during exposure')
+    
+    ax0.set_xlim([mab_loc[0] - pad_x, mab_loc[0] + pad_x])
+    ax0.set_ylim([mab_loc[1] - pad_y, mab_loc[1] + pad_y])
+    #ax0.set_xlabel('Pixels')
+    #ax0.set_ylabel('Pixels')
+    ax0.set_xticks([])
+    ax0.set_yticks([])
+    
+    ax0.text(0.02, 0.98, f'{band}-band', 
+                color='k', ha='left', va='top', transform=ax0.transAxes,
+                fontsize = fs+4, backgroundcolor='white')
+    
+#ax0.legend()
+plt.tight_layout()
+fig.savefig(paths.figures / f'detection_images_{code}.png', bbox=None)
 plt.show()
+
+'''
+# test if noise is biased in one direction or the other to make Chris happy
+data_nearby = data_full[mab_loc[1] - pad_y: mab_loc[1] + pad_y, mab_loc[0] - pad_x:mab_loc[0] + pad_x]
+
+plt.imshow(data_nearby, origin = 'lower')
+plt.show()
+
+oneway = np.mean(data_nearby, axis = 0)
+otherway = np.mean(data_nearby, axis = 1)
+std = np.std(data_nearby)/np.sqrt(oneway.size)
+
+fig, ax = plt.subplots(1,1, figsize = (8,6))
+ax.plot(oneway, label = 'east-west')
+ax.plot(otherway, label = 'north-south')
+ax.axhline(0, linestyle = '--', color = 'k')
+ax.axhline(-std, linestyle = '-', color = 'k', label = 'standard deviation')
+ax.axhline(std, linestyle = '-', color = 'k')
+ax.set_xlabel('Pixel')
+ax.set_ylabel('Average flux (cts/s)')
+ax.legend()
+plt.show()
+
+
+'''

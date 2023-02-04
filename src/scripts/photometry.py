@@ -8,7 +8,7 @@ we compute the error on the photometry by using many inner and outer radii
 
 
 TO DO:
-- rewrite this to operate on all the moons we want to include
+- add data for all the moons we want to include
 - make this give ``final answers" and compile them into tables
 '''
 
@@ -20,18 +20,44 @@ from astropy import table
 import paths
 from scipy.interpolate import interp1d
 
-fname = paths.data / 'results/urh_Mab_2019-10-28.fits'
-ypos = 505   #503
-xpos = 683 #699
+code = 'Mab'
+band = 'H'
+
+photometry_constants_dict = {
+    'Mab':{
+        'H':{'stem':'urh', 'coadds':6, 'C1':8.87e-17, 'xpos':187, 'ypos':395}, #urh156
+        'K':{'stem':'urk', 'coadds':4, 'C1':6.46e-17, 'xpos':188, 'ypos':307}, #urk146
+        },
+    'Ophelia':{
+        'H':{},
+        'K':{},
+        },
+    'Cordelia':{
+        'H':{},
+        'K':{},
+        },
+    'Perdita':{
+        'H':{},
+        'K':{},
+        },
+}
+
+
+stem = photometry_constants_dict[code][band]['stem']
+n_coadds_raw = photometry_constants_dict[code][band]['coadds'] #apparently the "raw" images were already divided by the number of coadds so this is needed
+xpos = photometry_constants_dict[code][band]['xpos'] 
+ypos = photometry_constants_dict[code][band]['ypos'] 
+# Paradis et al conversion factors for 2019-10-28
+C1 = photometry_constants_dict[code][band]['C1']  # from cts s-1 to erg s-1 cm-2 um-1; see Paradis+23 Section 2.5.1
+
+fname = paths.data / f'results/{stem}_{code}_2019-10-28.fits'
 boxr = 50
 rinner = 7
 rmid = 12
 router = 45
-
-# Paradis et al conversion factors for 2019-10-28
-C1 = 8.87e-17 # from cts s-1 to erg s-1 cm-2 um-1; see Paradis+23 Section 2.5.1
 CU, CR = 1,1 # see Paradis+23 Section 2.5. this could be looked at later but for now it's ok
-n_coadds_raw = 6 #apparently the "raw" images were already divided by the number of coadds so this is needed
+
+
 
 hdul = fits.open(fname)
 itime = hdul[0].header['ITIME']/n_coadds_raw #seconds
@@ -40,8 +66,7 @@ data = hdul[0].data
 # find the wing correction by importing tables from psf_wing_correction.py
 wing_corrs = {}
 for i in [0,1,2]:
-    wing_corr_table = ascii.read(paths.data / f"tables/wing_correction_{i}.csv")
-    print(wing_corr_table)
+    wing_corr_table = ascii.read(paths.data / f"tables/wing_correction_{band.upper()}_{i}.csv")
     wing_corr_interp = interp1d(wing_corr_table['Radius'], wing_corr_table['Correction'])
     wing_corrs[f"{i}"] = wing_corr_interp
 
@@ -63,6 +88,8 @@ flux = apstats.sum - (bkgd * ap.area)
 #print(f'Un-corrected total flux = {flux}')
 corrected_flux = (C1/itime) * (flux / wing_correction)
 #print(f'Corrected total flux = {corrected_flux} erg s-1 cm-2 um-1')
+rms = annstats.std * np.sqrt(ap.area)
+print(f'Approximate SNR = {flux / rms}')
 
 
 # plot
@@ -77,16 +104,16 @@ if doplot:
     plt.ylim([ypos-boxr,ypos+boxr])
     plt.xlabel('Pixels')
     plt.ylabel('Pixels')
-    plt.savefig(paths.figures / "example_aperture.png", dpi=300)
+    plt.savefig(paths.figures / f"example_aperture_{code}_{stem}.png", dpi=300)
     plt.show()
     plt.close()
 
 
 ## compute the photometry for many inner and outer radii
 nsamples = 50
-ri0 = 3
-ri1 = 10
-ro0 = 15
+ri0 = 5
+ri1 = 12
+ro0 = ri1 + 5
 ro1 = 50
 
 # first get 100 backgrounds, 100 sums/areas, and the corresponding wing corrections
@@ -112,7 +139,7 @@ for i in range(len(apsums)):
         
 final_flux = np.mean(results_table)
 final_err = np.abs(np.percentile(results_table, [16, 84]) - final_flux)
-print(f'Mab flux = {final_flux} erg s-1 cm-1 um-1')
+print(f'{code} flux = {final_flux} erg s-1 cm-1 um-1')
 print(f'Lower, upper error = {final_err} erg s-1 cm-1 um-1')
 print(f'Standard deviation = {np.std(results_table)} erg s-1 cm-1 um-1')
         
@@ -131,5 +158,5 @@ ax0.set_xlabel('outer radii')
 #ax1.set_ylabel('Number of Samples')
 #ax1.set_xlabel('Derived Flux')
 
-fig.savefig(paths.figures / 'photometry_vs_region.png', dpi=300)
+fig.savefig(paths.figures / f'photometry_vs_region_{code}_{stem}.png', dpi=300)
 plt.show()

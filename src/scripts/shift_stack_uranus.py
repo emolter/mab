@@ -2,9 +2,8 @@
 
 '''
 TO DO:
-- expand this to automatically choose proper observing blocks for each moon
-    in order to maximize SNR of the detection
-- expand this to automatically build Mab_full, Mab_block45, and Mab_block67
+- expand this to automatically build Mab_full, Mab_firsthalf, Mab_secondhalf
+- get optimal detections of the other moons
 '''
 
 from shift_stack_moons.shift_stack_moons import *
@@ -15,17 +14,42 @@ import pandas as pd
 from astroquery.jplhorizons import Horizons
 import paths
 
+code = 'Mab'
+band = 'K'
+perturbation_experiment = False #set this flag to True to re-build mock data in paths.data / perturbation_experiment
+
+constants_dict = {
+    'Mab':{
+        'H':{'stem':'urh', 'reverse':True, 'canny':False, 'start_idx':41, 'end_idx':64}, #urh156
+        'K':{'stem':'urk', 'reverse':True, 'canny':True, 'start_idx':0, 'end_idx':24}, #urk146
+        },
+    'Ophelia':{
+        'H':{},
+        'K':{},
+        },
+    'Cordelia':{
+        'H':{},
+        'K':{},
+        },
+    'Perdita':{
+        'H':{},
+        'K':{},
+        },
+}
+
 # find filenames
 data_dir = paths.data / 'reduced/2019oct28'
 data_files = os.listdir(data_dir)
-stem = 'urk'
+stem = constants_dict[code][band]['stem']
 obscode = '568'
-code = 'Mab'
 date = '2019-10-28'
 tstart = date+' 00:00'
 tend = date+' 23:59'
-perturbation_experiment = False #set this flag to True to re-build mock data in paths.data / perturbation_experiment
 pixscale = 0.009971
+start_idx = constants_dict[code][band]['start_idx']
+end_idx = constants_dict[code][band]['end_idx']
+reverse = constants_dict[code][band]['reverse'] #do you want to input the files backward so the moon is stacked to the last position instead of the first position?
+canny = constants_dict[code][band]['canny']
 
 outfname = paths.data / f"results/{stem}_{code}_{date}.fits"
 
@@ -40,13 +64,13 @@ block_ends = np.argwhere(diff > 1).T[0]+1
 block_starts = np.concatenate([np.array([0]), block_ends])
 block_ends = np.concatenate([block_ends, np.array([len(fnames)])])
 fnames_sorted = np.array(fnames)[sorti]
-#select which observing blocks you want
-#fnames = fnames_sorted[block_starts[5]+1:] #block_ends[-1]] #Mab is found in block_starts[5]+1 to end of block 7 for H-band
-fnames = fnames_sorted
+
+#select which observations you want - can separate them into blocks using block_starts and block_ends
+fnames = fnames_sorted[start_idx:end_idx] #block_ends[-1]] #Mab is found in block_starts[5]+1 to end of block 7 for H-band
 
 # for testing, make a different frame the zeroth one
-#fnames = np.concatenate([fnames[12:], fnames[:12]])
-#fnames = fnames[::-1]
+if reverse:
+    fnames = fnames[::-1]
 
 
 ## get ephemeris from Horizons. quantity 6 is the satellite relative position to parent in arcsec
@@ -61,13 +85,13 @@ ephem = ephem.set_index(pd.DatetimeIndex(ephem["datetime_str"]))
 
 if not perturbation_experiment:
     # do shift-and-stack and write
-    fits_out = shift_and_stack(fnames, ephem, pixscale=0.009971, difference=True, edge_detect=True)
+    fits_out = shift_and_stack(fnames, ephem, pixscale=pixscale, difference=True, edge_detect=canny)
     fits_out.write(outfname)
 
 
 if perturbation_experiment:
     # do a perturbation experiment to prove we don't see spurious sources
     for i in range(100):
-        outfname2 = paths.data / f"perturbation_experiment/{code}_{date}_{i}.fits"
-        fits_out = shift_and_stack(fnames, ephem, pixscale=pixscale, difference=True, edge_detect=False, perturbation_mode=True)
+        outfname2 = paths.data / f"perturbation_experiment/{stem}_{code}_{date}_{i}.fits"
+        fits_out = shift_and_stack(fnames, ephem, pixscale=pixscale, difference=True, edge_detect=canny, perturbation_mode=True, diagnostic_plots = False)
         fits_out.write(outfname2)
