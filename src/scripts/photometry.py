@@ -43,6 +43,13 @@ photometry_constants_dict = {
 }
 
 
+## compute the photometry for many inner and outer radii
+nsamples = 50
+ri0 = 5
+ri1 = 10
+ro0 = ri1 + 5
+ro1 = 50
+
 stem = photometry_constants_dict[code][band]['stem']
 n_coadds_raw = photometry_constants_dict[code][band]['coadds'] #apparently the "raw" images were already divided by the number of coadds so this is needed
 xpos = photometry_constants_dict[code][band]['xpos'] 
@@ -51,10 +58,6 @@ ypos = photometry_constants_dict[code][band]['ypos']
 C1 = photometry_constants_dict[code][band]['C1']  # from cts s-1 to erg s-1 cm-2 um-1; see Paradis+23 Section 2.5.1
 
 fname = paths.data / f'results/{stem}_{code}_2019-10-28.fits'
-boxr = 50
-rinner = 7
-rmid = 12
-router = 45
 CU, CR = 1,1 # see Paradis+23 Section 2.5. this could be looked at later but for now it's ok
 
 
@@ -77,7 +80,12 @@ def get_wing_corr(r, wing_corrs):
     corr2 = wing_corrs["2"](r)
     return np.mean(np.array([corr0, corr1, corr2]))
 
+'''
 # compute the photometry for a single inner and outer radius
+boxr = 50
+rinner = 7
+rmid = 12
+router = 45
 ap = aperture.CircularAperture((xpos,ypos), r=rinner)
 ann = aperture.CircularAnnulus((xpos,ypos), r_in=rmid, r_out=router)
 apstats = aperture.ApertureStats(data, ap)
@@ -90,7 +98,6 @@ corrected_flux = (C1/itime) * (flux / wing_correction)
 #print(f'Corrected total flux = {corrected_flux} erg s-1 cm-2 um-1')
 rms = annstats.std * np.sqrt(ap.area)
 print(f'Approximate SNR = {flux / rms}')
-
 
 # plot
 doplot = True
@@ -107,14 +114,7 @@ if doplot:
     plt.savefig(paths.figures / f"example_aperture_{code}_{stem}.png", dpi=300)
     plt.show()
     plt.close()
-
-
-## compute the photometry for many inner and outer radii
-nsamples = 50
-ri0 = 5
-ri1 = 12
-ro0 = ri1 + 5
-ro1 = 50
+'''
 
 # first get 100 backgrounds, 100 sums/areas, and the corresponding wing corrections
 ris = np.linspace(ri0, ri1, nsamples)
