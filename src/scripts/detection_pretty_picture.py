@@ -21,7 +21,7 @@ and direction of Mab's motion across the detector during a single 2-minute expos
 The average motion of Mab over a single 2-minute exposure, projected onto the detector plane,
 is $\approx$6.2 pixels in the sky-North-Northeast direction. 
 This is larger than Keck's diffraction-limited resolution of 40 mas (4 pixels) at 1.6 $\mu$m,
-so smearing is substantial in the N-S direction, as seen in Figure \ref{fig:detection}.
+so smearing is substantial in the N-S direction
 "
 
 ready to ship!
@@ -91,7 +91,8 @@ for i, band in enumerate(['H', 'K']):
 #ax0.legend()
 plt.tight_layout()
 fig.savefig(paths.figures / f'detection_images_{code}.png', bbox=None)
-plt.show()
+#plt.show()
+plt.close()
 
 '''
 # test if noise is biased in one direction or the other to make Chris happy

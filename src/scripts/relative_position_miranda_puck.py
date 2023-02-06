@@ -22,7 +22,7 @@ See if that triangle matches the true position of Mab
 Second test: flip the problem by overlaying the expected path of Miranda and Puck relative to 
     Mab on top of the detection image
 
-To do: make this generically accept any small moon or band
+ready to ship!
 '''
 
 code = 'Mab'
@@ -112,7 +112,7 @@ miranda_mab_vector =  np.array([x_shifts[0] - x_shifts[2], y_shifts[0] - y_shift
 
 expected_mab_position_1 = puck_position + puck_mab_vector
 expected_mab_position_2 = miranda_position + miranda_mab_vector
-print(expected_mab_position_1, expected_mab_position_2, mab_position)
+#print(expected_mab_position_1, expected_mab_position_2, mab_position)
 
 # plot the frame with these vectors on top
 fig, ax = plt.subplots(1,1, figsize = (8,8))
@@ -143,7 +143,7 @@ ax.set_ylabel('Pixels')
 ax.legend()
 
 fig.savefig(paths.figures / f"expected_position_{stem}_{code}_oneframe.png", dpi=300)
-plt.show()
+#plt.show()
 plt.close()
 
 ## do the flipped problem here: assume Mab position is correct and static on the detector
@@ -203,7 +203,7 @@ ax.set_ylabel('Pixels')
 ax.legend()
 
 fig.savefig(paths.figures / f"expected_position_{stem}_{code}.png", dpi=300)
-plt.show()
+#plt.show()
 plt.close()
 
 

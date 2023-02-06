@@ -12,26 +12,37 @@
 
 % Author list
 %\author{@emolter}
-\author{Ned}
+\author[0000-0003-3799-9033]{Edward M. Molter}
+\affiliation{Earth and Planetary Science Department, University of California, Berkeley, CA 94720, USA}
+\correspondingauthor{Edward M. Molter}
+\email{emolter@berkeley.edu}
 
-\author{Imke}
+\author{Imke de Pater}
+\affiliation{Earth and Planetary Science Department, University of California, Berkeley, CA 94720, USA}
 
-\author{Chris}
+\author{Chris Moeckel}
+\affiliation{Earth and Planetary Science Department, University of California, Berkeley, CA 94720, USA}
 
 
 \begin{abstract}
 We report the first near-infrared detection of Uranus's smallest known moon Mab, the presumed source of the blue and diffuse $\mu$ ring, using the NIRC2 instrument at Keck Observatory. The detection was permitted by an updated shift-and-stack procedure allowing us to track Mab across the detector in 23 separate exposures taken over $\sim$2 hours, as well as the very low (0.02$^\circ$) phase angle at the time of observation.
-At this phase angle, Mab has an integrated I/F of $23 \pm 6$ km$^{2}$ at 1.6 $\mu$m and $35 \pm 9$ km$^{2}$ at 2.1 $\mu$m. 
+At this phase angle, Mab has an integrated I/F of 
+\variable{output/Mab_urh_intif.txt} $\pm$ \variable{output/Mab_urh_intiferr.txt} km$^{2}$ 
+at 1.6 $\mu$m and 
+\variable{output/Mab_urk_intif.txt} $\pm$ \variable{output/Mab_urk_intiferr.txt} km$^{2}$ 
+at 2.1 $\mu$m. 
 Comparing these values with Mab's visible reflectance as derived by HST reveals that Mab is spectrally blue; its (0.5 $\mu$m)/(1.6 $\mu$m) color is more consistent with Miranda's value than Puck's value. We therefore propose that Mab is more likely a $\sim$6-km radius body with a Miranda-like surface than a 12-km radius body with a Puck-like surface, but we caution that a Puck-like color is only ruled out at the 2$\sigma$ level.
 We also report (the first?) infrared photometry of Ophelia, (Cordelia?), and Perdita.
 \end{abstract}
+
+\keywords{}
 
 % Main body with filler text
 \section{Introduction}
 \label{s:intro}
 
 % does the below text fit in anywhere?
-The small regular moons comprising the Portia group in the Uranian system represent the most densely-packed set of satellites known, with semimajor axis separations of 3\% on average \citep{showalter20}; as such, the system is predicted to be chaotic, with collisions occurring on 10$^5$-10$^7$-year timescales \citep{duncan97, french12}. Indeed, the faint dusty $\nu$ ring, situated between the orbits of Portia and Rosalind, has been proposed to be the remnant of such a collision. Due in part to this small orbital spacing, the Uranian satellites affect each other's geology via dust transport in the circumplanetary environment. For example, dust deposition from Uranus's outer irregular satellites has been invoked to explain spectral reddening of the leading hemispheres of Ariel, Umbriel, Titania, and Oberon \citep{cartwright18}. Material transport is important for understanding the surfaces of Miranda, Puck, and the smaller inner moons, too, but these processes are less well-studied. 
+The small regular moons comprising the Portia group in the Uranian system represent the most densely-packed set of satellites known, with semimajor axis separations of 3\% on average \citep{showalter20}; as such, the system is predicted to be chaotic, with collisions occurring on 10$^5$- to 10$^7$-year timescales \citep{duncan97, french12}. Indeed, the faint dusty $\nu$ ring, situated between the orbits of Portia and Rosalind, has been proposed to be the remnant of such a collision. Due in part to this small orbital spacing, the Uranian satellites affect each other's geology via dust transport in the circumplanetary environment. For example, dust deposition from Uranus's outer irregular satellites has been invoked to explain spectral reddening of the leading hemispheres of Ariel, Umbriel, Titania, and Oberon \citep{cartwright18}. Material transport is important for understanding the surfaces of Miranda, Puck, and the smaller inner moons, too, but these processes are less well-studied. 
 Puck's leading hemisphere has a significantly bluer spectral slope than its trailing hemisphere, meaning that it may be sweeping up material from the $\mu$ ring \citep{french17}. %this is a DPS abstract - is there a better reference?
 Unusually low depth/diameter ratios of craters on the potential ocean world Miranda suggest the deposition of a $\sim$1 km thick regolith \citep{cartwright21, beddingfield22}. Those authors propose three possible sources of the regolith material: deposition from the $\mu$ ring, plume deposits from a subsurface ocean, and/or giant impact ejecta.
 
@@ -63,17 +74,27 @@ The proper motion of Mab is roughly 30 mas (3 pixels) per minute, which means th
 
 An image of our H-band detection of Mab is shown in the upper right panel of Figure \ref{fig:detection}. The detection is in a low-SNR regime, but we are confident that it is real for three reasons. First, a tentative detection of Mab can be made separately from the first 11 frames and the last 11 frames, meaning that an artefact in a single frame or 8-frame group is not producing a false positive. Second, the detection is located in the appropriate position on the sky relative to Miranda and Puck, as discussed below. Third, we performed an experiment to test the false positive rate of our shift-and-stack procedure under the same scattered light and noise conditions as the data. In short, we added random offsets to the expected position of Mab in each frame, then carried out shift-and-stack in the same way as we did for the true expected position. We repeated this procedure with different random offsets 100 times, and found that no noise spikes as bright as our Mab detection appeared anywhere in any of those 100 stacks; see Appendix \ref{s:falsepositives} for more details.
 
-Because Mab was detected at low SNR and within a substantial scattered light background, the flux in the wings of the PSF could not be accurately measured. We therefore determined the flux of Mab using a flux bootstrapping procedure similar to that applied to Keck-observed point sources by many other authors \citep[e.g.,][]{gibbard05, molter19, paradis23}, the specifics of which we summarize in Appendix \ref{s:bootstrapping}. We find the total flux of Mab to be $(5.9 \pm 1.4)\times10^{-16}$ \ergsec{} in H-band, where the error bars indicate a 1-$\sigma$ uncertainty, computed by taking the quadrature sum of the flux bootstrapping error and the 20\% photometric calibration error. This flux level corresponds to an integrated I/F of $23 \pm 6$ km$^{2}$ at 1.6 $\mu$m, where the integrated I/F is defined as the sky-projected area the moon would have if it were a perfect Lambertian reflector \citep[i.e., a geometric albedo of unity;][]{karkoschka01}. Note that the Sun-target-observer phase angle $\alpha$ of these observations was only 0.02$^\circ$, so the opposition surge was likely substantial, as discussed more in Section \ref{s:discussion}. The sub-solar longitude of Mab passed through 270$^\circ$ during the $\sim$2 hours of observations and the sub-observer latitude was 46$^\circ$, so the reflectance values we report represent an average of the leading and trailing hemispheres.
+Because Mab was detected at low SNR and within a substantial scattered light background, the flux in the wings of the PSF could not be accurately measured. We therefore determined the flux of Mab using a flux bootstrapping procedure similar to that applied to Keck-observed point sources by many other authors \citep[e.g.,][]{gibbard05, molter19, paradis23}, the specifics of which we summarize in Appendix \ref{s:bootstrapping}. We find the total flux of Mab to be
+(\variable{output/Mab_urh_flux.txt} $\pm$ \variable{output/Mab_urh_fluxerr.txt})$\times10^{-16}$ \ergsec{} 
+in H-band, where the error bars indicate a 1-$\sigma$ uncertainty, computed by taking the quadrature sum of the flux bootstrapping error and the 20\% photometric calibration error. This flux level corresponds to an integrated I/F of 
+\variable{output/Mab_urh_intif.txt} $\pm$ \variable{output/Mab_urh_intiferr.txt} km$^{2}$ 
+at 1.6 $\mu$m, where the integrated I/F is defined as the sky-projected area the moon would have if it were a perfect Lambertian reflector \citep[i.e., a geometric albedo of unity;][]{karkoschka01}. Note that the Sun-target-observer phase angle $\alpha$ of these observations was only 0.02$^\circ$, so the opposition surge was likely substantial, as discussed more in Section \ref{s:discussion}. The sub-solar longitude of Mab passed through 270$^\circ$ during the $\sim$2 hours of observations and the sub-observer latitude was 46$^\circ$, so the reflectance values we report represent an average of the leading and trailing hemispheres.
 
 The observed position of Mab is the same as expected based on the orbital parameters in the JPL Horizons system\footnote{\url{https://ssd.jpl.nasa.gov/horizons/app.html\#/}} to within one Keck resolution element; see Figure \ref{fig:astrometry}. We determined this based on the relative positions of Mab, Miranda, and Puck, the latter two of which can be seen easily in a single 120-second frame. The advantage of using the positions of other moons as a reference for astrometry is that it does not depend on a navigation solution for the planet's disk.
 
 \begin{figure}
 \includegraphics[width=0.5\textwidth]{figures/expected_position_urh_Mab_oneframe.png}
 \includegraphics[width=0.5\textwidth]{figures/expected_position_urh_Mab.png}
-\caption{Two visualizations of Mab's expected position. \textbf{Left:} A single NIRC2 H-band exposure overlaid with the expected relative positions of Mab, Miranda, and Puck (red arrows) as well as the detected position of Mab (blue dot). The expected vector of motion of Mab is also overlain (blue arrow). \textbf{Right:} The same shifted-and-stacked detection image of Mab shown in the right panel of Figure \ref{fig:detection}, but zoomed out and on a different color scale to show the apparent trajectories of Puck and Miranda. Mab's position is marked with a purple circle. The expected motion of Puck and Miranda relative to Mab are plotted as red and orange lines, respectively. Miranda is still overexposed in this image stretch, so the brightest pixels in Miranda's track are highlighted in cyan.\label{fig:astrometry}}
+\caption{Two visualizations of Mab's expected position. \textbf{Left:} A single NIRC2 H-band exposure overlaid with the expected relative positions of Mab, Miranda, and Puck (red arrows) as well as the detected position of Mab (blue dot). The expected vector of motion of Mab is also overlain (blue arrow). \textbf{Right:} The same shifted-and-stacked detection image of Mab shown in the right panel of Figure \ref{fig:detection}, but zoomed out and on a different color scale to show the apparent trajectories of Puck and Miranda. Mab's position is marked with a purple circle. The expected motion of Puck and Miranda relative to Mab are plotted as red and orange lines, respectively. Miranda is still overexposed in this image stretch, so the brightest pixels in Miranda's track are highlighted in cyan.}
+\label{fig:astrometry}
+\script{relative_position_miranda_puck.py}
 \end{figure}
 
-A very faint region of positive flux was observed at the expected position of Mab after stacking the Kp-band data (see Figure \ref{fig:detection}). This feature is not clearly distinguishable by eye from positive noise spikes elsewhere in the frame. The false positive rate experiment discussed in Appendix \ref{s:falsepositives} shows that a noise spike of similar brightness would appear within $\sim$50 pixels of the expected position $\sim$8\% of the time. However, our uncertainty in Mab's position is roughly one H-band PSF FWHM, or $\pm 2$ pixels, because we detected Mab at the expected position in H-band. We therefore label this a tentative detection. Photometry was performed in an identical way as for the H-band data, and we found a flux of $(3.4 \pm 0.9)\times10^{-16}$ \ergsec{}. This corresponds to an integrated I/F of $35 \pm 9$ km$^{2}$ at 2.1 $\mu$m, again at phase angle 0.02$^\circ$.
+A very faint region of positive flux was observed at the expected position of Mab after stacking the Kp-band data (see Figure \ref{fig:detection}). This feature is not clearly distinguishable by eye from positive noise spikes elsewhere in the frame. The false positive rate experiment discussed in Appendix \ref{s:falsepositives} shows that a noise spike of similar brightness would appear within $\sim$50 pixels of the expected position $\sim$\variable{output/perturbation_percent_higher_K.txt}\% of the time. However, our uncertainty in Mab's position is roughly one H-band PSF FWHM, or $\pm 2$ pixels, because we detected Mab at the expected position in H-band. We therefore label this a tentative detection. Photometry was performed in an identical way as for the H-band data, and we found a flux of 
+(\variable{output/Mab_urk_flux.txt} $\pm$ \variable{output/Mab_urk_fluxerr.txt})$\times10^{-16}$ \ergsec{} 
+. This corresponds to an integrated I/F of 
+\variable{output/Mab_urk_intif.txt} $\pm$ \variable{output/Mab_urk_intiferr.txt} km$^{2}$ 
+at 2.1 $\mu$m, again at phase angle 0.02$^\circ$.
 
 
 \subsection{Photometry of Other Moons}
@@ -88,17 +109,19 @@ Try Cupid again.
 
 The infrared brightness of Mab was approximately a factor of two fainter than that observed by \citet{showalter06} with HST at 0.5 $\mu$m. We compare the I/F of Mab in the three available filters (HST clear, H, Kp) with I/F values in the same filters for Puck and Miranda \citep{karkoschka01, gibbard05, paradis23} in Figure \ref{fig:spectrum} assuming Mab has either a 6-km or 12-km radius. Ratios between these filters are compiled in Table \ref{tab:color}. The visible/H ratio of Mab, which has the lowest uncertainty, is within 1$\sigma$ of Miranda's visible/H ratio but $\sim$2$\sigma$ away from Puck's. We therefore marginally prefer the interpretation that Mab is a 6-km body with a Miranda-like water-ice-rich surface; however, the alternative interpretation that Mab is a 12-km body with a Puck-like surface rich in organic aerosols cannot be ruled out by the available data.
 
-\input{output/color_table.tex}
+\variable{output/color_table.tex}
 
 
 \begin{figure}
 \includegraphics[width=0.7\textwidth]{figures/reflectance_spectrum.png}
 \caption{Comparison between the spectra of Mab, Miranda, and Puck. HST data for Puck and Miranda are from \citet{karkoschka01} ($\alpha$ = 0.034$^\circ$). Keck H- and Kp-band data for Miranda are from \citet{gibbard05} (rescaled from $\alpha$ = 1.9$^\circ$ to Mab's observed $\alpha$ = 0.02$^\circ$ using the \citet{karkoschka01} photometric model). Keck H- and Kp-band data for Puck are from \citet{paradis23} ($\alpha$ = 0.02$^\circ$). HST Mab data are from \citet{showalter06} ($\alpha$ = 0.08$^\circ$.)}
 \label{fig:spectrum}
-%\script{compute_if.py} % needs pip installable pylanetary...
+\script{compute_if.py}
 \end{figure}
 
-Our reported H-band flux of $(5.9 \pm 1.4)\times10^{-16}$ \ergsec{} is seemingly in tension with the 3$\sigma$ upper limit of $2.4 \times 10^{-16}$ \ergsec{} derived previously \citep[][]{paradis19}, which we have rescaled to account for updated photometric calibration constants reported in \citet{paradis23}. However, those observations were taken at a phase angle of $0.65^\circ$. If we rescale the limit to the $0.02^\circ$ phase angle of our observations according to the \citet{karkoschka01} photometric model for Miranda, the limit would be $3.2 \times 10^{-16}$ \ergsec{}, within 2$\sigma$ of our derived result and therefore statistically insignificant. The \citet{paradis23} requirement that Mab's H-band geometric albedo be $<0.11$ for a 6-km effective radius is disfavored by our data at the 2.0$\sigma$ level.
+Our reported H-band flux of 
+(\variable{output/Mab_urh_flux.txt} $\pm$ \variable{output/Mab_urh_fluxerr.txt})$\times10^{-16}$ \ergsec{} 
+is seemingly in tension with the 3$\sigma$ upper limit of $2.4 \times 10^{-16}$ \ergsec{} derived previously \citep[][]{paradis19}, which we have rescaled to account for updated photometric calibration constants reported in \citet{paradis23}. However, those observations were taken at a phase angle of $0.65^\circ$. If we rescale the limit to the $0.02^\circ$ phase angle of our observations according to the \citet{karkoschka01} photometric model for Miranda, the limit would be $3.2 \times 10^{-16}$ \ergsec{}, within 2$\sigma$ of our derived result and therefore statistically insignificant. The \citet{paradis23} requirement that Mab's H-band geometric albedo be $<0.11$ for a 6-km effective radius is disfavored by our data at the 2.0$\sigma$ level.
 
 %The photometric model of \citet{karkoschka01} defines the I/F of a moon as the product of four normalized functions and a constant:
 %\begin{equation}
@@ -136,24 +159,23 @@ Astroquery \citep{ginsburg19},
 matplotlib \citep{matplotlib07},
 numpy \citep{numpy20},
 photutils \citep{photutils140},
-pylanetary [CITE],
+pylanetary \citep{pylanetary23},
 scikit-image \citep{skimage14},
 scipy \citep{scipy20},
-shift\_stack\_moons [CITE]
+shift\_stack\_moons \cite{shift_stack_moons23}
 }
 % other \software here!
 
+\facility{Keck:II}
+
 \appendix
 
-\setcounter{table}{0}
-\renewcommand{\thetable}{A\arabic{table}}
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{A\arabic{figure}}
+\restartappendixnumbering
 
 \section{Shift-and-Stack Procedure}
 \label{s:shiftandstack}
 
-To improve the SNR on Mab, individual 120-second frames were shifted according to the expected position of the moon relative to Uranus and then co-added; details of this procedure are presented here. The accuracy of the shift-and-stack procedure depends sensitively on the rotation angle of the detector, so we corrected for the 0.26$^\circ$ angular offset between NIRC2's sky north position and true sky north before starting \citep{service16}. First, we aligned the position of Uranus in all the frames using the \texttt{chi2\_shift} function of the \texttt{Astropy}-affiliated \texttt{image\_registration} Python package\footnote{\url{https://github.com/keflavich/image_registration}}, which implements the single-step discrete Fourier transform (DFT) algorithm for efficient sub-pixel image registration \citep{guizarsicairos08}. In Kp-band, cloud features and moons are brighter than the planet's disk, so we first applied a Canny edge-detection filter using the \texttt{skimage} Python package \citep{skimage14} to enhance the rings of Uranus, then ran \texttt{chi2\_shift} on those edges. This alignment method was found to produce very sharp stacked images of the rings, so we were confident that it was aligning the frames accurately. The implementation of this alignment step permitted us to co-add all three H-band observing blocks (and two Kp-band observing blocks) shown in Figure \ref{fig:detection}, between which Uranus was repositioned on the detector by tens of pixels.  Second, we found the median of these planet-aligned frames and subtracted it from each frame; this step suppresses the signal of non-moving sources (in this case, the planet and rings), decreasing the effects of scattered light. Third, the expected offset between Mab and Uranus at the time\footnote{Start time plus half the exposure time} of each exposure was taken from JPL Horizons, accessed using the \texttt{Astroquery} Python package \citep{ginsburg19}. We converted the expected x,y offset from units of arcseconds to pixels assuming the pixel scale of the NIRC2 narrow camera to be 0.009971\arcsec \citep{service16}. Finally, we applied the shifts using a 2-D fast Fourier transform (FFT) sub-pixel image shift, again implemented with \texttt{image\_registration}, and summed all the frames to produce a single stacked frame.
+To improve the SNR on Mab, individual 120-second frames were shifted according to the expected position of the moon relative to Uranus and then co-added; details of this procedure are presented here. The accuracy of the shift-and-stack procedure depends sensitively on the rotation angle of the detector, so we corrected for the 0.26$^\circ$ angular offset between NIRC2's sky north position and true sky north before starting \citep{service16}. First, we aligned the position of Uranus in all the frames using the \texttt{chi2\_shift} function of the \texttt{Astropy}-affiliated \texttt{image\_registration} Python package\footnote{\url{https://github.com/keflavich/image_registration}}, which implements the single-step discrete Fourier transform (DFT) algorithm for efficient sub-pixel image registration \citep{guizarsicairos08}. In Kp-band, cloud features and moons are brighter than the planet's disk, so we first applied a Canny edge-detection filter using the \texttt{skimage} Python package \citep{skimage14} to enhance the rings of Uranus, then ran \texttt{chi2\_shift} on those edges. This alignment method was found to produce very sharp stacked images of the rings, so we were confident that it was aligning the frames accurately. The implementation of this alignment step permitted us to co-add all three H-band observing blocks (and two Kp-band observing blocks) shown in Figure \ref{fig:detection}, between which Uranus was repositioned on the detector by tens of pixels.  Second, we found the median of these planet-aligned frames and subtracted it from each frame; this step suppresses the signal of non-moving sources (in this case, the planet and rings), decreasing the effects of scattered light. Third, the expected offset between Mab and Uranus at the time\footnote{Start time plus half the exposure time} of each exposure was taken from JPL Horizons, accessed using the \texttt{Astroquery} Python package \citep{ginsburg19}. We converted the expected x,y offset from units of arcseconds to pixels assuming the pixel scale of the NIRC2 narrow camera to be 0.009971\arcsec \citep{service16}. Finally, we applied the shifts using a 2-D fast Fourier transform (FFT) sub-pixel image shift, again implemented with \texttt{image\_registration}, and summed all the frames to produce a single stacked frame. Our shift-and-stack code is publicly available on GitHub \citep{molter23}.
 
 
 \section{Flux Bootstrapping Technique}
@@ -177,12 +199,16 @@ Mab was observed in the lower-left quadrant of the NIRC2 NARROW camera, which is
 
 \begin{figure}
 \includegraphics[width=1.0\textwidth]{figures/random_stack_experiment_Mab_H.png}
-\caption{Results of the false positive rate experiment for H band. \textbf{(a)} Detection of Mab shown in Figure \ref{fig:detection}. \textbf{(b)} Panel (a) after filtering and binning were applied. \textbf{(c)} Example filtered and binned randomized stack. \textbf{(d)} Histogram of the SNR of the brightest pixel in the filtered and binned test frames; the real data are demarcated with a black dashed line.\label{fig:randomstack}}
+\caption{Results of the false positive rate experiment for H band. \textbf{(a)} Detection of Mab shown in Figure \ref{fig:detection}. \textbf{(b)} Panel (a) after filtering and binning were applied. \textbf{(c)} Example filtered and binned randomized stack. \textbf{(d)} Histogram of the SNR of the brightest pixel in the filtered and binned test frames; the real data are demarcated with a black dashed line.}
+\label{fig:randomstack}
+\script{plot_perturbation_experiment.py}
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=1.0\textwidth]{figures/random_stack_experiment_Mab_K.png}
-\caption{Results of the false positive rate experiment for Kp band. See caption of Figure \ref{fig:randomstack} for a description. \label{fig:randomstack_K}}
+\caption{Results of the false positive rate experiment for Kp band. See caption of Figure \ref{fig:randomstack} for a description. }
+\label{fig:randomstack_K}
+\script{plot_perturbation_experiment.py}
 \end{figure}
 
 

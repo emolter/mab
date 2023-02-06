@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 '''
-runs shift_stack_moons on the 2019-10-28 Keck Uranus data
-
-TO DO:
-- get optimal detections of the other moons
+ready to ship
 '''
 
 from shift_stack_moons import shift_and_stack
@@ -44,8 +41,9 @@ tstart = date+' 00:00'
 tend = date+' 23:59'
 pixscale = 0.009971
 
-if not os.path.exists(paths.data / "results"):
-    os.mkdir(paths.data / "results")
+np.random.seed(9)
+if not os.path.exists(paths.data / "perturbation_experiment"):
+    os.mkdir(paths.data / "perturbation_experiment")
 
 
 for code in ['Mab']:
@@ -59,6 +57,7 @@ for code in ['Mab']:
     ephem = ephem.set_index(pd.DatetimeIndex(ephem["datetime_str"]))
     
     for band in ['H', 'Kp']:
+        print(f'Starting {band} band')
         stem = constants_dict[code][band]['stem']
         start_idx = constants_dict[code][band]['start_idx']
         end_idx = constants_dict[code][band]['end_idx']
@@ -85,10 +84,10 @@ for code in ['Mab']:
         # for testing, make a different frame the zeroth one
         if reverse:
             fnames = fnames[::-1]
-
-        # do shift-and-stack and write
-        fits_out = shift_and_stack(fnames, ephem, pixscale=pixscale, 
-                    difference=True, edge_detect=canny, perturbation_mode=False, diagnostic_plots = False)
-        fits_out.write(outfname)
-
-
+            
+        for i in range(100):
+            print(f"starting simulation {i} out of 100")
+            outfname2 = paths.data / f"perturbation_experiment/{stem}_{code}_{date}_{i}.fits"
+            fits_out = shift_and_stack(fnames, ephem, pixscale=pixscale, 
+                        difference=True, edge_detect=canny, perturbation_mode=True, diagnostic_plots = False)
+            fits_out.write(outfname2)

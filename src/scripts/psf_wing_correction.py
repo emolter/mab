@@ -15,6 +15,10 @@ Use standard star observations to compute the flux correction
 ready to ship!
 '''
 
+if not os.path.exists(paths.data / "tables"):
+    os.mkdir(paths.data / "tables")
+
+
 show_figures = False
 for filt in ['H', 'K']:
 
@@ -33,7 +37,7 @@ for filt in ['H', 'K']:
     for k, fname in enumerate(star_files):
         
         hdul = fits.open(fname)
-        print(fname)
+        #print(fname)
         data = hdul[0].data
         if filt == 'H':
             cutoff = 5800
@@ -41,7 +45,7 @@ for filt in ['H', 'K']:
             cutoff = 2500
         data[data>cutoff] = 0 #this removes bad pixels
         star_pos = np.unravel_index(np.argmax(data), data.shape)[::-1]
-        print(star_pos, np.max(data))
+        #print(star_pos, np.max(data))
         
         # flux from moon inner radius
         moon_aps = np.array([aperture.CircularAperture(star_pos, r=ri) for ri in ris])
@@ -52,7 +56,8 @@ for filt in ['H', 'K']:
         star_aps = [aperture.CircularAperture(star_pos, r=ro) for ro in ros]
         star_areas = [star_ap.area for star_ap in star_aps]
         star_apsums = [aperture.ApertureStats(data, star_ap).sum for star_ap in star_aps]
-        print('Total star counts = ', np.mean(star_apsums))
+        if __name__ == "__main__":
+            print('Total star counts = ', np.mean(star_apsums))
         
         # noise
         noise_anns = [aperture.CircularAnnulus(star_pos, r_in=ro, r_out=ro+noise_ann_width) for ro in ros]

@@ -15,19 +15,16 @@ plot this against the Showalter value for integrated I/F
 
 description of types of albedo: https://the-moon.us/wiki/Albedo
 
-to do:
-find a smart place to put H and K band bandpass data within the showyourwork architecture
+To do: make work for the other moons, put them in the paper too
 '''
 
 caption = r'Available color information on Mab compared with its nearest orbital neighbors, Puck and Miranda. See Figure \ref{fig:spectrum} caption for data sources. \label{tab:color}'
 
 code = 'Mab'
-band = 'K'
-keck_transmission_dir = '/Users/emolter/Python/nirc2_reduce/filter_passbands/'
 constants_dict = {
     'Mab':{
-        'H':{'flux':5.9e-16, 'flux_err':1.4e-16, 'bp_file':keck_transmission_dir + 'h.csv'}, 
-        'K':{'flux':3.4e-16, 'flux_err':0.9e-16, 'bp_file':keck_transmission_dir + 'kp.csv'}, 
+        'H':{'stem':'urh', 'bp_file':paths.static / 'h.csv'}, 
+        'K':{'stem':'urk', 'bp_file':paths.static / 'kp.csv'}, 
         },
     'Ophelia':{
         'H':{},
@@ -61,8 +58,11 @@ target_omega = 1*u.km**2 / (((target_obs_dist*u.au).to(u.km))**2) #setting area 
 wls, fluxes, errs = [], [], []
 for band in ['H', 'K']:
     # get Keck filter transmission
-    flux = constants_dict[code][band]['flux'] # erg s-1 cm-2 um-1
-    flux_err = constants_dict[code][band]['flux_err'] # erg s-1 cm-2 um-1
+    stem = constants_dict[code][band]['stem']
+    with open(paths.output / f'{code}_{stem}_flux.txt', 'r') as f:
+        flux = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
+    with open(paths.output / f'{code}_{stem}_fluxerr.txt', 'r') as f:
+        flux_err = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
     bp_file = constants_dict[code][band]['bp_file']
     wl, trans = np.genfromtxt(bp_file, skip_header=1, delimiter=',', usecols=(0,1)).T
     wl = wl[~np.isnan(wl)][:-1] * u.micron
@@ -73,6 +73,11 @@ for band in ['H', 'K']:
     wl_eff, ioverf = I_over_F(flux, bp, target_sun_dist, target_omega)
     fractional_err = flux_err / flux
     ioverf_err = ioverf*fractional_err
+    
+    with open(paths.output / f"{code}_{stem}_intif.txt", "w") as f:
+        print(f"{int(ioverf)}", file=f)
+    with open(paths.output / f"{code}_{stem}_intiferr.txt", "w") as f:
+        print(f"{int(ioverf_err)}", file=f)
     
     print(f'{code} {band}-band integrated I/F = {ioverf} +/- {ioverf_err} km2 at {wl_eff} um')
     
@@ -158,7 +163,10 @@ fig, ax = plt.subplots(1,1, figsize = (8,6))
 colors = ['k', 'gray']
 for i,r in enumerate([r1, r2]):
     area = np.pi*r**2
-    ax.errorbar(mab[0], mab[1]/area, yerr=mab[2]/area, 
+    ioverf = mab[1]/area
+    ioverf_err = mab[2]/area
+    
+    ax.errorbar(mab[0], ioverf, yerr=ioverf_err, 
                 linestyle = '', marker = 'o', label = f'Mab r={r} km', color = colors[i])
     print(f'Given r = {r}, H-band albedo is {mab[1][-2]/area} +/- {mab[2][-2]/area}')
 #ax2.scatter(miranda_trailing[0], miranda_trailing[1], color = 'blue', label = 'Miranda Trailing')
@@ -176,4 +184,5 @@ ax.set_ylim([0.0, 0.5])
 fig.legend()
 plt.tight_layout()
 fig.savefig(paths.figures / 'reflectance_spectrum.png', dpi=300)
-plt.show()
+#plt.show()
+plt.close()

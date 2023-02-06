@@ -169,6 +169,6 @@ ax.legend()
 
 plt.tight_layout()
 fig.savefig(paths.figures / f"motion_on_detector.png", dpi=300)
-plt.show()
+#plt.show()
 plt.close()
 
