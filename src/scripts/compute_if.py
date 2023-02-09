@@ -23,8 +23,8 @@ caption = r'Available color information on Mab compared with its nearest orbital
 code = 'Mab'
 constants_dict = {
     'Mab':{
-        'H':{'stem':'urh', 'bp_file':paths.static / 'h.csv'}, 
-        'K':{'stem':'urk', 'bp_file':paths.static / 'kp.csv'}, 
+        'H':{'stem':'urh', 'bp_file':paths.static / 'h.csv', 'A':1}, # for integrated I/F use area of 1 km
+        'K':{'stem':'urk', 'bp_file':paths.static / 'kp.csv', 'A':1}, 
         },
     'Ophelia':{
         'H':{},
@@ -35,55 +35,59 @@ constants_dict = {
         'K':{},
         },
     'Perdita':{
-        'H':{},
-        'K':{},
+        'H':{'stem':'urh', 'bp_file':paths.static / 'h.csv', 'A':1}, 
+        'K':{'stem':'urk', 'bp_file':paths.static / 'kp.csv', 'A':1}, 
         },
 }
 
-# get sun-target and Earth-target distance from Horizons
-obscode = '568'
-date = '2019-10-28'
-tstart = date+' 11:00' #this just needs to be approximate
-tend = date+' 12:00'
-horizons_obj = Horizons(
-    id=code,
-    location=obscode,
-    epochs={"start": tstart, "stop": tend, "step": "1h"},
-)
-ephem = horizons_obj.ephemerides()[0]
-target_sun_dist = ephem['r']
-target_obs_dist = ephem['delta']
-target_omega = 1*u.km**2 / (((target_obs_dist*u.au).to(u.km))**2) #setting area to 1 km2 means that I/F function will output integrated I/F
-
-wls, fluxes, errs = [], [], []
-for band in ['H', 'K']:
-    # get Keck filter transmission
-    stem = constants_dict[code][band]['stem']
-    with open(paths.output / f'{code}_{stem}_flux.txt', 'r') as f:
-        flux = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
-    with open(paths.output / f'{code}_{stem}_fluxerr.txt', 'r') as f:
-        flux_err = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
-    bp_file = constants_dict[code][band]['bp_file']
-    wl, trans = np.genfromtxt(bp_file, skip_header=1, delimiter=',', usecols=(0,1)).T
-    wl = wl[~np.isnan(wl)][:-1] * u.micron
-    trans = trans[~np.isnan(trans)][:-1] / 100.
-    bp = np.array([wl, trans])
+for code in ['Perdita', 'Mab']:
+    # get sun-target and Earth-target distance from Horizons
+    obscode = '568'
+    date = '2019-10-28'
+    tstart = date+' 11:00' #this just needs to be approximate
+    tend = date+' 12:00'
+    horizons_obj = Horizons(
+        id=code,
+        location=obscode,
+        epochs={"start": tstart, "stop": tend, "step": "1h"},
+    )
+    ephem = horizons_obj.ephemerides()[0]
+    target_sun_dist = ephem['r']
+    target_obs_dist = ephem['delta']
+    area_km = constants_dict[code]['H']['A']
+    target_omega = area_km*u.km**2 / (((target_obs_dist*u.au).to(u.km))**2) #setting area to 1 km2 means that I/F function will output integrated I/F
     
-    # do the I/F calculation
-    wl_eff, ioverf = I_over_F(flux, bp, target_sun_dist, target_omega)
-    fractional_err = flux_err / flux
-    ioverf_err = ioverf*fractional_err
-    
-    with open(paths.output / f"{code}_{stem}_intif.txt", "w") as f:
-        print(f"{int(ioverf)}", file=f)
-    with open(paths.output / f"{code}_{stem}_intiferr.txt", "w") as f:
-        print(f"{int(ioverf_err)}", file=f)
-    
-    print(f'{code} {band}-band integrated I/F = {ioverf} +/- {ioverf_err} km2 at {wl_eff} um')
-    
-    wls.append(wl_eff)
-    fluxes.append(ioverf)
-    errs.append(ioverf_err)
+    if code == 'Mab':
+        wls, fluxes, errs = [], [], []
+    for band in ['H', 'K']:
+        # get Keck filter transmission
+        stem = constants_dict[code][band]['stem']
+        with open(paths.output / f'{code}_{stem}_flux.txt', 'r') as f:
+            flux = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
+        with open(paths.output / f'{code}_{stem}_fluxerr.txt', 'r') as f:
+            flux_err = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
+        bp_file = constants_dict[code][band]['bp_file']
+        wl, trans = np.genfromtxt(bp_file, skip_header=1, delimiter=',', usecols=(0,1)).T
+        wl = wl[~np.isnan(wl)][:-1] * u.micron
+        trans = trans[~np.isnan(trans)][:-1] / 100.
+        bp = np.array([wl, trans])
+        
+        # do the I/F calculation
+        wl_eff, ioverf = I_over_F(flux, bp, target_sun_dist, target_omega)
+        fractional_err = flux_err / flux
+        ioverf_err = ioverf*fractional_err
+        
+        with open(paths.output / f"{code}_{stem}_intif.txt", "w") as f:
+            print(f"{int(ioverf)}", file=f)
+        with open(paths.output / f"{code}_{stem}_intiferr.txt", "w") as f:
+            print(f"{int(ioverf_err)}", file=f)
+        
+        print(f'{code} {band}-band integrated I/F = {ioverf} +/- {ioverf_err} km2 at {wl_eff} um')
+        
+        if code == 'Mab':
+            wls.append(wl_eff)
+            fluxes.append(ioverf)
+            errs.append(ioverf_err)
 
 #put Showalter point in 
 mab = np.array([wls, fluxes, errs])
@@ -166,7 +170,7 @@ for i,r in enumerate([r1, r2]):
     ioverf = mab[1]/area
     ioverf_err = mab[2]/area
     
-    ax.errorbar(mab[0], ioverf, yerr=ioverf_err, 
+    ax.errorbar(mab[0], ioverf, yerr=ioverf_err, uplims = [False, False, True],
                 linestyle = '', marker = 'o', label = f'Mab r={r} km', color = colors[i])
     print(f'Given r = {r}, H-band albedo is {mab[1][-2]/area} +/- {mab[2][-2]/area}')
 #ax2.scatter(miranda_trailing[0], miranda_trailing[1], color = 'blue', label = 'Miranda Trailing')

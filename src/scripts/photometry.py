@@ -21,6 +21,7 @@ import paths
 from scipy.interpolate import interp1d
 
 
+fluxcal_frac_err = 0.10 #check this number!
 photometry_constants_dict = {
     'Mab':{
         'H':{'stem':'urh', 'coadds':6, 'C1':8.87e-17, 'xpos':187, 'ypos':395}, #urh156
@@ -35,8 +36,8 @@ photometry_constants_dict = {
         'K':{},
         },
     'Perdita':{
-        'H':{},
-        'K':{},
+        'H':{'stem':'urh', 'coadds':6, 'C1':8.87e-17, 'xpos':262, 'ypos':306},
+        'K':{'stem':'urk', 'coadds':4, 'C1':6.46e-17, 'xpos':497, 'ypos':973},
         },
 }
 
@@ -50,12 +51,12 @@ def get_wing_corr(r, wing_corrs):
 
 ## compute the photometry for many inner and outer radii
 nsamples = 50
-ri0 = 5
+ri0 = 3
 ri1 = 10
 ro0 = ri1 + 5
 ro1 = 50
 
-for code in ['Mab']:
+for code in ['Mab', 'Perdita']:
     for band in ['H', 'K']:
         stem = photometry_constants_dict[code][band]['stem']
         n_coadds_raw = photometry_constants_dict[code][band]['coadds'] #apparently the "raw" images were already divided by the number of coadds so this is needed
@@ -144,10 +145,13 @@ for code in ['Mab']:
         print(f'Lower, upper error = {final_err} erg s-1 cm-1 um-1')
         print(f'Standard deviation = {final_std} erg s-1 cm-1 um-1')
         
+        # add the 20% flux cal uncertainty to the error
+        reported_uncertainty = np.sqrt(final_std**2 + (fluxcal_frac_err*final_flux)**2)
+        
         with open(paths.output / f"{code}_{stem}_flux.txt", "w") as f:
             print(f"{(1e16*final_flux):.1f}", file=f)
         with open(paths.output / f"{code}_{stem}_fluxerr.txt", "w") as f:
-            print(f"{(1e16*final_std):.1f}", file=f)
+            print(f"{(1e16*reported_uncertainty):.1f}", file=f)
                 
         fig, (ax0) = plt.subplots(1,1, figsize = (8,6))
         

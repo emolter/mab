@@ -37,6 +37,7 @@ from scipy.ndimage import gaussian_filter
 from scipy.signal import medfilt2d, convolve2d
 import paths
 from skimage.filters import difference_of_gaussians
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
 
 code = 'Mab'
@@ -106,12 +107,12 @@ for band in ['H', 'K']:
     ax0 = plt.subplot2grid((2,2),(0,1))
     ax1 = plt.subplot2grid((2,2),(1,1))
     
-    ax0.imshow(cs_rebin_real, origin='lower')
+    im0 = ax0.imshow(cs_rebin_real, origin='lower')
     ax0.set_title('Filtered and Binned Data')
-    ax2.imshow(cs_rebin, origin='lower')
+    im2 = ax2.imshow(cs_rebin, origin='lower')
     ax2.set_title('Example Test Frame, Filtered and Binned')
     
-    ax3.imshow(data_real, origin='lower', vmin=-30, vmax=50)
+    im3 = ax3.imshow(data_real, origin='lower', vmin=-30, vmax=50)
     ax3.set_title('Real Unfiltered Data')
     
     ax1.hist(detection_sizes, bins=10)
@@ -120,9 +121,15 @@ for band in ['H', 'K']:
     ax1.set_ylabel('Number of Test Frames')
     ax1.legend(loc = 'upper right')
     
-    for ax in [ax0, ax2, ax3]:
+    ims = [im0, im2, im3]
+    for j, ax in enumerate([ax0, ax2, ax3]):
         ax.set_xticks([])
         ax.set_yticks([])
+        
+        ax_divider = make_axes_locatable(ax)
+        cax = ax_divider.append_axes("bottom", size="9%", pad="2%")
+        cb = fig.colorbar(ims[j], orientation='horizontal', cax=cax, label='Flux (arb. units)')
+        
         
     panel_labels = ['(a)', '(b)', '(c)', '(d)']
     for i, ax in enumerate([ax3, ax0, ax2, ax1]):

@@ -25,15 +25,16 @@ for filt in ['H', 'K']:
     nsamples = 50
     ri0 = 3 #smallest moon aperture radius
     ri1 = 20 #largest moon aperture radius
-    ro0 = 100 #star aperture radius to capture all star flux; also sets inner radius of noise annulus
-    ro1 = 300
-    noise_ann_width = 100 #width of noise annulus starting at ro
+    ro0 = 150 #star aperture radius to capture all star flux; also sets inner radius of noise annulus
+    ro1 = 200
+    noise_ann_width = 50 #width of noise annulus starting at ro
     
     star_files = [paths.data / f"reduced/2019oct28" / s for s in os.listdir(paths.data / f"reduced/2019oct28/") if s.startswith(f'hd{filt}')]
     ris = np.linspace(ri0, ri1, nsamples)
     ros = np.linspace(ro0, ro1, nsamples)
     
-    
+    star_cts = []
+    star_errs = []
     for k, fname in enumerate(star_files):
         
         hdul = fits.open(fname)
@@ -56,8 +57,6 @@ for filt in ['H', 'K']:
         star_aps = [aperture.CircularAperture(star_pos, r=ro) for ro in ros]
         star_areas = [star_ap.area for star_ap in star_aps]
         star_apsums = [aperture.ApertureStats(data, star_ap).sum for star_ap in star_aps]
-        if __name__ == "__main__":
-            print('Total star counts = ', np.mean(star_apsums))
         
         # noise
         noise_anns = [aperture.CircularAnnulus(star_pos, r_in=ro, r_out=ro+noise_ann_width) for ro in ros]
@@ -75,6 +74,7 @@ for filt in ['H', 'K']:
         
         # compile all possible combinations of moon and star aperture sizes
         results_table = np.empty((len(moon_apsums), len(bkgds)))
+        star_fluxes = np.empty((len(bkgds)))
         for i in range(len(moon_apsums)):
             moon_apsum = moon_apsums[i]
             moon_area = moon_areas[i]
@@ -85,6 +85,8 @@ for filt in ['H', 'K']:
                 moon_flux = moon_apsum - (bkgd * moon_area)
                 
                 results_table[i,j] = moon_flux / star_flux
+                if i == 0:
+                    star_fluxes[j] = star_flux
                 
         fig, ax = plt.subplots(1,1, figsize = (8,8))
         cim = ax.contourf(ros, ris, results_table, levels=12)
@@ -97,11 +99,21 @@ for filt in ['H', 'K']:
             plt.show()
         plt.close()
         
+        star_cts.append(np.mean(star_fluxes))
+        star_errs.append(np.std(star_fluxes))
+        
         # the plots show that the results are very insensitive to the choice of outer radius
         # which is a good thing. So we can compile a results table based on ro = 200
         results_final = results_table[:,int(len(bkgds)/2)]
         table_out = table.Table({'Radius':list(ris), 'Correction':list(results_final)})
         table_out.write(paths.data / f"tables/wing_correction_{filt}_{k}.csv", overwrite=True)
         
+    
+    # compute the photometric uncertainty
+    star_avg_cts = np.mean(np.array(star_cts))
+    star_spread = np.std(np.array(star_cts))
+    star_total_err = np.sqrt(star_spread**2 + np.mean(np.array(star_errs))**2)
+    star_frac_err = star_total_err / star_avg_cts
+    print(f'Photometric uncertainty was {star_frac_err} in {filt} band')
         
     

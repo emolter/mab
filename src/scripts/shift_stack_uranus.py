@@ -8,6 +8,7 @@ TO DO:
 '''
 
 from shift_stack_moons import shift_and_stack
+#from shift_stack_moons.shift_stack_moons import *
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -25,13 +26,13 @@ constants_dict = {
         'H':{},
         'Kp':{},
         },
-    'Cordelia':{
-        'H':{},
-        'Kp':{},
+    'Cupid':{
+        'H':{'stem':'urh', 'reverse':True, 'canny':False, 'start_idx':9, 'end_idx':23, 'start_idx_2':48, 'end_idx_2':64},
+        'Kp':{'stem':'urk', 'reverse':True, 'canny':True, 'start_idx':0, 'end_idx':24},
         },
     'Perdita':{
-        'H':{},
-        'Kp':{},
+        'H':{'stem':'urh', 'reverse':False, 'canny':False, 'start_idx':0, 'end_idx':48},
+        'Kp':{'stem':'urk', 'reverse':False, 'canny':True, 'start_idx':0, 'end_idx':11},
         },
 }
 
@@ -48,7 +49,7 @@ if not os.path.exists(paths.data / "results"):
     os.mkdir(paths.data / "results")
 
 
-for code in ['Mab']:
+for code in ['Mab', 'Perdita']:
     ## get ephemeris from Horizons. quantity 6 is the satellite relative position to parent in arcsec
     horizons_obj = Horizons(
         id=code,
@@ -59,6 +60,7 @@ for code in ['Mab']:
     ephem = ephem.set_index(pd.DatetimeIndex(ephem["datetime_str"]))
     
     for band in ['H', 'Kp']:
+        print(f"Starting {code} {band}-band")
         stem = constants_dict[code][band]['stem']
         start_idx = constants_dict[code][band]['start_idx']
         end_idx = constants_dict[code][band]['end_idx']
@@ -80,7 +82,13 @@ for code in ['Mab']:
         fnames_sorted = np.array(fnames)[sorti]
         
         #select which observations you want - can separate them into blocks using block_starts and block_ends
-        fnames = fnames_sorted[start_idx:end_idx] #block_ends[-1]] #Mab is found in block_starts[5]+1 to end of block 7 for H-band
+        fnames = fnames_sorted[start_idx:end_idx]
+        if (code == 'Cupid') and (band == 'H'):
+            # customize because Cupid goes off the detector and back on
+            start_idx_2 = constants_dict[code][band]['start_idx_2']
+            end_idx_2 = constants_dict[code][band]['end_idx_2']
+            block2 = fnames_sorted[start_idx_2:end_idx_2]
+            fnames = np.concatenate([fnames, block2])
         
         # for testing, make a different frame the zeroth one
         if reverse:

@@ -34,9 +34,15 @@ req = 25559 #km
 rpol = 24973 #km
 
 constants_dict = {
-    'H':{'stem':'urh', 'reverse':True, 'canny':False, 'start_idx':41, 'end_idx':64}, #urh156
-        'K':{'stem':'urk', 'reverse':True, 'canny':True, 'start_idx':0, 'end_idx':24}, #urk146
+    'Mab':{'H':{'stem':'urh', 'canny':False, 'start_idx':41, 'end_idx':64}, #urh156
+            'K':{'stem':'urk', 'canny':True, 'start_idx':0, 'end_idx':24}}, #urk146
+    'Perdita':{'H':{'stem':'urh', 'canny':False, 'start_idx':0, 'end_idx':48}, 
+            'K':{'stem':'urk', 'canny':True, 'start_idx':0, 'end_idx':11}}, 
+    'Cupid':{'H':{'stem':'urh', 'canny':False, 'start_idx':0, 'end_idx':64}, 
+            'K':{'stem':'urk', 'canny':True, 'start_idx':0, 'end_idx':24}}, 
         }
+# Cupid on detector in all K-band frames but should be reversed
+# Cupid on detector for frames 0-29, 48-64 in H-band and also should be reversed
 
 ## get ephemeris from Horizons. quantity 6 is the satellite relative position to parent in arcsec
 horizons_obj = Horizons(
@@ -50,9 +56,9 @@ ephem = ephem.set_index(pd.DatetimeIndex(ephem["datetime_str"]))
 exposure_starts = []
 filters = ['K', 'H']
 for filt in filters:
-    stem = constants_dict[filt]['stem']
-    start_idx = constants_dict[filt]['start_idx']
-    end_idx = constants_dict[filt]['end_idx']
+    stem = constants_dict[code][filt]['stem']
+    start_idx = constants_dict[code][filt]['start_idx']
+    end_idx = constants_dict[code][filt]['end_idx']
     fnames = [data_dir / s for s in data_files if s.startswith(stem)]
 
     # split into different observing blocks
@@ -106,7 +112,7 @@ for filt in filters:
 
     # print the average pixel motion per frame
     #print(vec_x[-1], vec_y[-1])
-    print(f'Average motion of Mab during a single exposure (pixels): {np.mean(vec_x)}, {np.mean(vec_y)}')
+    print(f'Average motion of {code} during a single exposure (pixels): {np.mean(vec_x)}, {np.mean(vec_y)}')
     
     if filt == 'H':
         ephem_h = np.array([pos_x, pos_y])
@@ -154,6 +160,7 @@ colors = ['red', 'blue']
 for i, positions in enumerate([ephem_k, ephem_h]):
     pos_x = np.array(positions[0]) + ctr[0]
     pos_y = np.array(positions[1]) + ctr[1]
+    print(np.nonzero(pos_y > 0))
     ax.scatter(pos_x, pos_y, color = colors[i], label = f'{filters[i]}-band')
 #ax.quiver(*origins, vec_x, vec_y)
     if filters[i] == 'H':
@@ -168,7 +175,7 @@ ax.tick_params(which='both', labelsize = fs - 2)
 ax.legend()
 
 plt.tight_layout()
-fig.savefig(paths.figures / f"motion_on_detector.png", dpi=300)
+fig.savefig(paths.figures / f"motion_on_detector_{code}.png", dpi=300)
 #plt.show()
 plt.close()
 
