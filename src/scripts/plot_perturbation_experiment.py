@@ -43,8 +43,8 @@ from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 code = 'Mab'
 constants_dict = {
     'Mab':{
-        'H':{'stem':'urh', 'xpos':187, 'ypos':395}, #urh156
-        'K':{'stem':'urk', 'xpos':188, 'ypos':307}, #urk146
+        'H':{'stem':'urh', 'coadds':6, 'C1':8.87e-17, 'xpos':187, 'ypos':395}, #urh156
+        'K':{'stem':'urk', 'coadds':4, 'C1':6.46e-17, 'xpos':188, 'ypos':307}, #urk146
         },
     'Ophelia':{
         'H':{},
@@ -82,13 +82,17 @@ for band in ['H', 'K']:
     
     data_real = data_real[ypos-box_y:ypos+box_y, xpos-box_x:xpos+box_x]
     cs_conv_real = difference_of_gaussians(data_real, sigma_inner, sigma_outer)
-    ## print(np.sum(data_real)/np.sum(cs_conv_real)) #this does not conserve flux
-    ## see workaround below: we can scale both the signal and the noise by the bin size
-    ## and then we can take the noise level from the binned data
+    print(np.sum(data_real), np.sum(cs_conv_real)) #this does not conserve flux!
+    ## see workaround below: just rescale by std of data and farmes
 
     # rebin factor of z
-    cs_rebin_real=zfactor**2*rebin(cs_conv_real, 1/zfactor) #factor of z**2 to conserve flux
-    detection_real = np.max(cs_rebin_real)/(np.std(cs_rebin_real) / zfactor) #by binning, we are increasing signal by factor of z^2 so snr increases by factor of z
+    cs_rebin_real=rebin(cs_conv_real, 1/zfactor) #this step does conserve flux
+    detection_real = np.max(cs_rebin_real) /(np.std(cs_rebin_real))
+    
+    # this scaling is inconsistent with Imke's solution for upper limits
+    # need to instead convert this to the nsigma of the maximum single pixel
+    # or rescale Imke's version so that we compare the per-pixel RMS 
+    # with the total area of the psf
     
     detection_sizes = []
     for i in range(100):
@@ -96,10 +100,10 @@ for band in ['H', 'K']:
         data = fits.open(fname)[0].data
         data = data[ypos-box_y:ypos+box_y, xpos-box_x:xpos+box_x]
         cs_conv = difference_of_gaussians(data, sigma_inner, sigma_outer)
-        cs_rebin=zfactor**2*rebin(cs_conv, 1/zfactor) #factor of z**2 to conserve flux
-        err = np.std(cs_rebin) / zfactor #by binning, we are increasing signal by factor of z^2 so snr increases by factor of z
-        detection = np.max(cs_rebin)/err
-        detection_sizes.append(detection)
+        cs_rebin=rebin(cs_conv, 1/zfactor) #factor of z**2 to conserve flux
+        #err = np.std(cs_rebin) #by binning, we are increasing signal by factor of z^2 so snr increases by factor of z
+        detection = np.max(cs_rebin) / np.std(cs_rebin)
+        detection_sizes.append(detection / detection_real)
  
     fig = plt.figure(figsize = (12, 8))
     ax3 = plt.subplot2grid((2,2),(0,0))
@@ -116,8 +120,8 @@ for band in ['H', 'K']:
     ax3.set_title('Real Unfiltered Data')
     
     ax1.hist(detection_sizes, bins=10)
-    ax1.axvline(detection_real, color='k', linestyle='--', label=f'Detection of {code}; SNR ~{np.round(detection_real,1)}')
-    ax1.set_xlabel('SNR of Brightest Pixel')
+    ax1.axvline(1.0, color='k', linestyle='--', label='Panel (b) single-pixel max')
+    ax1.set_xlabel('Normalized Flux of Brightest Pixel')
     ax1.set_ylabel('Number of Test Frames')
     ax1.legend(loc = 'upper right')
     
@@ -142,7 +146,7 @@ for band in ['H', 'K']:
     plt.close()
     
     detection_sizes = np.array(detection_sizes)
-    percent_higher = int(100*np.sum(detection_sizes > detection_real) / detection_sizes.size)
+    percent_higher = int(100*np.sum(detection_sizes > 1.0) / detection_sizes.size)
     with open(paths.output / f'perturbation_percent_higher_{band}.txt', 'w') as f:
         print(f"{percent_higher}", file=f)
     print(f'{percent_higher} percent of test frames contained a larger flux spike in {band} band')

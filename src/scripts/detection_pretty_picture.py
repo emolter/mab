@@ -43,8 +43,8 @@ constants_dict = {
         'K':{},
         },
     'Perdita':{
-        'H':{},
-        'K':{},
+        'H':{'stem':'urh', 'coadds':6, 'xpos':262, 'ypos':306},
+        'K':{'stem':'urk', 'coadds':4, 'xpos':497, 'ypos':973},
         },
 }
 

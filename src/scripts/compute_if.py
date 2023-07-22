@@ -18,13 +18,13 @@ description of types of albedo: https://the-moon.us/wiki/Albedo
 To do: make work for the other moons, put them in the paper too
 '''
 
-caption = r'Available color information on Mab compared with its nearest orbital neighbors, Puck and Miranda. See Figure \ref{fig:spectrum} caption for data sources. \label{tab:color}'
+caption = r'Available color information on Mab and Perdita compared with Puck and Miranda. See Figure \ref{fig:spectrum} caption for data sources. \label{tab:color}'
 
-code = 'Mab'
 constants_dict = {
     'Mab':{
         'H':{'stem':'urh', 'bp_file':paths.static / 'h.csv', 'A':1}, # for integrated I/F use area of 1 km
         'K':{'stem':'urk', 'bp_file':paths.static / 'kp.csv', 'A':1}, 
+        '500':[0.5, 50, 3],
         },
     'Ophelia':{
         'H':{},
@@ -37,61 +37,34 @@ constants_dict = {
     'Perdita':{
         'H':{'stem':'urh', 'bp_file':paths.static / 'h.csv', 'A':1}, 
         'K':{'stem':'urk', 'bp_file':paths.static / 'kp.csv', 'A':1}, 
+        '500':[0.5, 54, 22],
         },
 }
 
-for code in ['Perdita', 'Mab']:
-    # get sun-target and Earth-target distance from Horizons
-    obscode = '568'
-    date = '2019-10-28'
-    tstart = date+' 11:00' #this just needs to be approximate
-    tend = date+' 12:00'
-    horizons_obj = Horizons(
-        id=code,
-        location=obscode,
-        epochs={"start": tstart, "stop": tend, "step": "1h"},
-    )
-    ephem = horizons_obj.ephemerides()[0]
-    target_sun_dist = ephem['r']
-    target_obs_dist = ephem['delta']
-    area_km = constants_dict[code]['H']['A']
-    target_omega = area_km*u.km**2 / (((target_obs_dist*u.au).to(u.km))**2) #setting area to 1 km2 means that I/F function will output integrated I/F
+def quadsum(err1, err2):
+    return np.sqrt(err1**2 + err2**2)
     
-    if code == 'Mab':
-        wls, fluxes, errs = [], [], []
-    for band in ['H', 'K']:
-        # get Keck filter transmission
-        stem = constants_dict[code][band]['stem']
-        with open(paths.output / f'{code}_{stem}_flux.txt', 'r') as f:
-            flux = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
-        with open(paths.output / f'{code}_{stem}_fluxerr.txt', 'r') as f:
-            flux_err = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
-        bp_file = constants_dict[code][band]['bp_file']
-        wl, trans = np.genfromtxt(bp_file, skip_header=1, delimiter=',', usecols=(0,1)).T
-        wl = wl[~np.isnan(wl)][:-1] * u.micron
-        trans = trans[~np.isnan(trans)][:-1] / 100.
-        bp = np.array([wl, trans])
-        
-        # do the I/F calculation
-        wl_eff, ioverf = I_over_F(flux, bp, target_sun_dist, target_omega)
-        fractional_err = flux_err / flux
-        ioverf_err = ioverf*fractional_err
-        
-        with open(paths.output / f"{code}_{stem}_intif.txt", "w") as f:
-            print(f"{int(ioverf)}", file=f)
-        with open(paths.output / f"{code}_{stem}_intiferr.txt", "w") as f:
-            print(f"{int(ioverf_err)}", file=f)
-        
-        print(f'{code} {band}-band integrated I/F = {ioverf} +/- {ioverf_err} km2 at {wl_eff} um')
-        
-        if code == 'Mab':
-            wls.append(wl_eff)
-            fluxes.append(ioverf)
-            errs.append(ioverf_err)
-
-#put Showalter point in 
-mab = np.array([wls, fluxes, errs])
-mab = np.insert(mab, 0, np.array([0.5, 50, 3]), axis=1)
+def ratio_with_err(moonarr, i0, i1, nround = 2):
+    '''
+    Parameters
+    ----------
+    moonarr: 2-d array ([wls, fluxes, errs])
+    i0, i1: indices on the inner axis to ratio, i.e., fluxes[i0]/fluxes[i1]
+    
+    Returns
+    -------
+    color
+    color_err
+    '''
+    flux0 = moonarr[1][i0]
+    flux1 = moonarr[1][i1]
+    err0 = moonarr[2][i0]
+    err1 = moonarr[2][i1]
+    color = flux0 / flux1
+    frac_err = quadsum(err0/flux0, err1/flux1)
+    color_err = color*frac_err
+    return np.round(color, nround), np.round(color_err, nround)
+    
 
 # add spectra of Miranda leading, Miranda trailing, and Puck from other authors
 miranda_trailing = np.genfromtxt(paths.static / 'miranda_trailing.csv', delimiter=',').T #http://dx.doi.org/10.1051/0004-6361/201321988 #phase angle was around 0.2
@@ -119,42 +92,89 @@ gibbard_miranda[1:]*=1.5
 miranda = np.concatenate([karkoschka_miranda, gibbard_miranda], axis = 1)
 puck = np.concatenate([karkoschka_puck, paradis_puck], axis = 1)
 
-def quadsum(err1, err2):
-    return np.sqrt(err1**2 + err2**2)
+# what are the Kp/H ratios of each body?
+color_dict = {'Miranda':{r'0.5 $\mu$m / 1.6 $\mu$m': ratio_with_err(miranda, 0, -2)[0],
+                        'error':ratio_with_err(miranda, 0, -2)[1]},
+                'Puck':{r'0.5 $\mu$m / 1.6 $\mu$m': ratio_with_err(puck, 0, -2)[0], 
+                        'error':ratio_with_err(puck, 0, -2)[1],}
+                }
+#'Kp/H':[ratio_with_err(mab, -1, -2)[0], ratio_with_err(miranda, -1, -2)[0], ratio_with_err(puck, -1, -2)[0]],
+#'Kp/H err':[ratio_with_err(mab, -1, -2)[1], ratio_with_err(miranda, -1, -2)[1], ratio_with_err(puck, -1, -2)[1]],
+#r'0.5 $\mu$m / 1.6 $\mu$m':[ratio_with_err(mab, 0, -2)[0], , ],
+#'vis/H err':[ratio_with_err(mab, 0, -2)[1], , ,
+#}
+
+for code in ['Perdita', 'Mab']:
+    # get sun-target and Earth-target distance from Horizons
+    obscode = '568'
+    date = '2019-10-28'
+    tstart = date+' 11:00' #this just needs to be approximate
+    tend = date+' 12:00'
+    horizons_obj = Horizons(
+        id=code,
+        location=obscode,
+        epochs={"start": tstart, "stop": tend, "step": "1h"},
+    )
+    ephem = horizons_obj.ephemerides()[0]
+    target_sun_dist = ephem['r']
+    target_obs_dist = ephem['delta']
+    area_km = constants_dict[code]['H']['A']
+    target_omega = area_km*u.km**2 / (((target_obs_dist*u.au).to(u.km))**2) #setting area to 1 km2 means that I/F function will output integrated I/F
     
-def ratio_with_err(moonarr, i0, i1, nround = 2):
-    '''
-    Parameters
-    ----------
-    moonarr: 2-d array ([wls, fluxes, errs])
-    i0, i1: indices on the inner axis to ratio, i.e., fluxes[i0]/fluxes[i1]
-    
-    Returns
-    -------
-    color
-    color_err
-    '''
-    flux0 = moonarr[1][i0]
-    flux1 = moonarr[1][i1]
-    err0 = moonarr[2][i0]
-    err1 = moonarr[2][i1]
-    color = flux0 / flux1
-    frac_err = quadsum(err0/flux0, err1/flux1)
-    color_err = color*frac_err
-    return np.round(color, nround), np.round(color_err, nround)
+    wls, fluxes, errs = [], [], []
+    for band in ['H', 'K']:
+        # get Keck filter transmission
+        stem = constants_dict[code][band]['stem']
+        with open(paths.output / f'{code}_{stem}_flux.txt', 'r') as f:
+            flux = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
+        with open(paths.output / f'{code}_{stem}_fluxerr.txt', 'r') as f:
+            flux_err = float(f.readline()) * 1e-16 # erg s-1 cm-2 um-1
+        bp_file = constants_dict[code][band]['bp_file']
+        wl, trans = np.genfromtxt(bp_file, skip_header=1, delimiter=',', usecols=(0,1)).T
+        wl = wl[~np.isnan(wl)][:-1] * u.micron
+        trans = trans[~np.isnan(trans)][:-1] / 100.
+        bp = np.array([wl, trans])
+        
+        # do the I/F calculation
+        wl_eff, ioverf = I_over_F(flux, bp, target_sun_dist, target_omega)
+        fractional_err = flux_err / flux
+        ioverf_err = ioverf*fractional_err
+        
+        with open(paths.output / f"{code}_{stem}_intif.txt", "w") as f:
+            print(f"{int(ioverf)}", file=f)
+        with open(paths.output / f"{code}_{stem}_intiferr.txt", "w") as f:
+            print(f"{int(ioverf_err)}", file=f)
+        
+        print(f'{code} {band}-band integrated I/F = {ioverf} +/- {ioverf_err} km2 at {wl_eff} um')
+        
+        
+        wls.append(wl_eff)
+        fluxes.append(ioverf)
+        errs.append(ioverf_err)
+
+    #put Showalter point in 
+    mab = np.array([wls, fluxes, errs])
+    mab = np.insert(mab, 0, constants_dict[code]['500'], axis=1)
     
 
-# what are the Kp/H ratios of each body?
-color_table = {'body':['Mab', 'Miranda', 'Puck'],
-                'Kp/H':[ratio_with_err(mab, -1, -2)[0], ratio_with_err(miranda, -1, -2)[0], ratio_with_err(puck, -1, -2)[0]],
-                'Kp/H err':[ratio_with_err(mab, -1, -2)[1], ratio_with_err(miranda, -1, -2)[1], ratio_with_err(puck, -1, -2)[1]],
-            'vis/H':[ratio_with_err(mab, 0, -2)[0], ratio_with_err(miranda, 0, -2)[0], ratio_with_err(puck, 0, -2)[0]],
-            'vis/H err':[ratio_with_err(mab, 0, -2)[1], ratio_with_err(miranda, 0, -2)[1], ratio_with_err(puck, 0, -2)[1]],
-            }
+    color_dict[code] = {r'0.5 $\mu$m / 1.6 $\mu$m':ratio_with_err(mab, 0, -2)[0],
+                        'error':ratio_with_err(mab, 0, -2)[1]}
+
+# output the color table
+bodies = list(color_dict.keys())
+vis_over_h = []
+vis_over_h_err = []
+for body in bodies:
+    vis_over_h.append(color_dict[body][r'0.5 $\mu$m / 1.6 $\mu$m'])
+    vis_over_h_err.append(color_dict[body]['error'])
+
+color_table = {'Moon':bodies, r'0.5 $\mu$m / 1.6 $\mu$m':vis_over_h, r'1$\sigma$ error':vis_over_h_err}
 color_table = table.Table(color_table)
+print(color_table)
 ascii.write(color_table, paths.output / 'color_table.tex', 
             Writer=ascii.Latex, caption=caption, overwrite=True,
             latexdict=ascii.latex.latexdicts['AA'])
+
 
 # two possible radius determinations of Mab
 r1 = 12 #km
@@ -185,7 +205,7 @@ ax.set_xlabel(r'Wavelength ($\mu$m)', fontsize = fs)
 ax.set_ylabel('Geometric Albedo', fontsize = fs)
 ax.set_ylim([0.0, 0.5])
 
-fig.legend()
+ax.legend()
 plt.tight_layout()
 fig.savefig(paths.figures / 'reflectance_spectrum.png', dpi=300)
 #plt.show()

@@ -1,0 +1,54 @@
+This is BibTeX, Version 0.99d (TeX Live 2016/MacPorts 2016_6)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: ms.aux
+The style file: aasjournal.bst
+Database file #1: references.bib
+Warning--entry type for "photutils140" isn't style-file defined
+--line 615 of file references.bib
+Warning--entry type for "pylanetary23" isn't style-file defined
+--line 673 of file references.bib
+Warning--entry type for "shift_stack_moons23" isn't style-file defined
+--line 771 of file references.bib
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+You've used 54 entries,
+            3168 wiz_defined-function locations,
+            1044 strings with 29411 characters,
+and the built_in function-call counts, 32106 in all, are:
+= -- 2076
+> -- 3508
+< -- 15
++ -- 1167
+- -- 1231
+* -- 3387
+:= -- 6235
+add.period$ -- 55
+call.type$ -- 54
+change.case$ -- 297
+chr.to.int$ -- 52
+cite$ -- 54
+duplicate$ -- 918
+empty$ -- 1510
+format.name$ -- 1291
+if$ -- 6146
+int.to.chr$ -- 3
+int.to.str$ -- 0
+missing$ -- 50
+newline$ -- 171
+num.names$ -- 216
+pop$ -- 330
+preamble$ -- 1
+purify$ -- 297
+quote$ -- 0
+skip$ -- 771
+stack$ -- 0
+substring$ -- 973
+swap$ -- 18
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 486
+warning$ -- 0
+while$ -- 194
+width$ -- 0
+write$ -- 599
+(There were 3 warnings)

@@ -8,7 +8,8 @@ import os
 import pandas as pd
 from astroquery.jplhorizons import Horizons
 from datetime import datetime, timedelta
-from pylanetary.planetnav import *
+from pylanetary.navigation import *
+from pylanetary.utils import Body
 import astropy.units as u
 
 '''
@@ -137,14 +138,16 @@ dist = d_AU.to(u.km).value
 pixscale_km = dist*np.tan(np.deg2rad(pixscale_arcsec/3600.))
 #print(f'pixel scale is {pixscale_km} km')
 
-nav = PlanetNav(data, ephem[0], req, rpol, pixscale_arcsec)
+ura = Body('Uranus', epoch=obs_time, location='568') #Keck
+nav = Nav(data, ura, pixscale_arcsec)
+#ephem = nav.ephem
 dx_canny, dy_canny, _, _ = nav.colocate(mode='canny',
                     low_thresh=1e-5, 
                     high_thresh=0.01, 
                     sigma=5, 
                     tb=1600, 
                     a=0.1, 
-                    beamsize=0.1,
+                    beam=0.1,
                     diagnostic_plot=False)
 
 ctr = (data.shape[0]/2 + dx_canny, data.shape[1]/2 + dy_canny)
@@ -173,6 +176,18 @@ ax.set_xlabel('Pixels', fontsize = fs)
 ax.set_ylabel('Pixels', fontsize = fs)
 ax.tick_params(which='both', labelsize = fs - 2)
 ax.legend()
+
+# add annotation for Miranda and Puck
+ax.annotate('Puck', (233, 275), xytext=(260,230), 
+            color='cyan', 
+            fontsize=fs, 
+            arrowprops={'width':1, 'color':'cyan', 'headwidth':6, 'headlength':10}, 
+            transform=ax.transAxes)
+ax.annotate('Miranda', (75, 93), xytext=(90,40), 
+            color='cyan', 
+            fontsize=fs, 
+            arrowprops={'width':1, 'color':'cyan', 'headwidth':6, 'headlength':10}, 
+            transform=ax.transAxes)
 
 plt.tight_layout()
 fig.savefig(paths.figures / f"motion_on_detector_{code}.png", dpi=300)

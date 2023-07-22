@@ -2,17 +2,17 @@ rule shift_stack_uranus:
     input:
         "src/data/reduced/2019oct28/"
     output:
-        "src/data/results/urh_Mab_2019-10-28.fits","src/data/results/urk_Mab_2019-10-28.fits"
+        "src/data/results/urh_Mab_2019-10-28.fits","src/data/results/urk_Mab_2019-10-28.fits", "src/data/results/urh_Perdita_2019-10-28.fits","src/data/results/urk_Perdita_2019-10-28.fits"
     script:
         "src/scripts/shift_stack_uranus.py"
 
-rule mab_path_on_detector:
+rule path_on_detector:
     input:
         "src/data/reduced/2019oct28/"
     output:
-        "src/tex/figures/motion_on_detector.png"
+        "src/tex/figures/motion_on_detector_Mab.png"
     script:
-        "src/scripts/mab_path_on_detector.py"
+        "src/scripts/path_on_detector.py"
 
 rule detection_pretty_picture:
     input:
@@ -48,9 +48,9 @@ rule psf_wing_correction:
 
 rule photometry:
     input:
-        "src/data/results/urh_Mab_2019-10-28.fits","src/data/results/urk_Mab_2019-10-28.fits", "src/data/tables/wing_correction_H_0.csv", "src/data/tables/wing_correction_H_1.csv", "src/data/tables/wing_correction_H_2.csv", "src/data/tables/wing_correction_K_0.csv", "src/data/tables/wing_correction_K_1.csv", "src/data/tables/wing_correction_K_2.csv"
+        "src/data/results/urh_Mab_2019-10-28.fits","src/data/results/urk_Mab_2019-10-28.fits", "src/data/tables/wing_correction_H_0.csv", "src/data/tables/wing_correction_H_1.csv", "src/data/tables/wing_correction_H_2.csv", "src/data/tables/wing_correction_K_0.csv", "src/data/tables/wing_correction_K_1.csv", "src/data/tables/wing_correction_K_2.csv", "src/tex/output/urk_photometric_uncertainty_percent.txt", "src/tex/output/urh_photometric_uncertainty_percent.txt"
     output:
-        "src/tex/figures/photometry_vs_region_Mab_urh.png","src/tex/figures/photometry_vs_region_Mab_urk.png","src/tex/output/Mab_urh_flux.txt","src/tex/output/Mab_urk_fluxerr.txt"
+        "src/tex/figures/photometry_vs_region_Mab_urh.png","src/tex/figures/photometry_vs_region_Mab_urk.png","src/tex/output/Mab_urh_flux.txt","src/tex/output/Mab_urk_flux.txt", "src/tex/output/Perdita_urh_flux.txt","src/tex/output/Perdita_urh_fluxerr.txt"
     script:
         "src/scripts/photometry.py"
 
